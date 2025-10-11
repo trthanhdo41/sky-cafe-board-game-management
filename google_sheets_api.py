@@ -151,14 +151,18 @@ class GoogleSheetsAPI:
         try:
             worksheet = self.sheet.worksheet('KHACH_HANG')
             
-            # Check if phone number already exists
-            records = worksheet.get_all_records()
-            customer_phone = customer['phone'].replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
-            
-            for record in records:
-                existing_phone = str(record.get('Số Điện Thoại', '')).replace("'", '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
-                if existing_phone == customer_phone:
-                    return {'success': False, 'message': f'Số điện thoại {customer["phone"]} đã tồn tại cho khách hàng: {record.get("Tên Khách Hàng", "Unknown")}'}
+            # Check if phone number already exists (handle empty sheet)
+            try:
+                records = worksheet.get_all_records()
+                customer_phone = customer['phone'].replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+                
+                for record in records:
+                    existing_phone = str(record.get('Số Điện Thoại', '')).replace("'", '').replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
+                    if existing_phone == customer_phone:
+                        return {'success': False, 'message': f'Số điện thoại {customer["phone"]} đã tồn tại cho khách hàng: {record.get("Tên Khách Hàng", "Unknown")}'}
+            except Exception as e:
+                print(f"⚠️ Warning: Could not check existing customers: {e}")
+                # Continue with adding new customer
             
             row = [
                 customer['code'],
