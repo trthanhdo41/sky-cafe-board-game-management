@@ -52,29 +52,101 @@ def test_connection():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/customers', methods=['GET'])
-def get_customers():
+@app.route('/api/customers', methods=['GET', 'POST'])
+def handle_customers():
     init_sheets_api()
     if not sheets_api:
         return jsonify({'success': False, 'message': 'Google Sheets not connected'})
     
-    try:
-        result = sheets_api.get_customers()
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+    if request.method == 'GET':
+        try:
+            result = sheets_api.get_customers()
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+    
+    elif request.method == 'POST':
+        try:
+            data = request.get_json()
+            if not data or 'customer' not in data:
+                return jsonify({'success': False, 'message': 'Invalid customer data'})
+            
+            result = sheets_api.add_customer(data['customer'])
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/products', methods=['GET'])
-def get_products():
+@app.route('/api/customers/<customer_id>', methods=['PUT', 'DELETE'])
+def handle_customer_by_id(customer_id):
     init_sheets_api()
     if not sheets_api:
         return jsonify({'success': False, 'message': 'Google Sheets not connected'})
     
-    try:
-        result = sheets_api.get_products()
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            if not data or 'customer' not in data:
+                return jsonify({'success': False, 'message': 'Invalid customer data'})
+            
+            result = sheets_api.update_customer(customer_id, data['customer'])
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+    
+    elif request.method == 'DELETE':
+        try:
+            result = sheets_api.delete_customer(customer_id)
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/products', methods=['GET', 'POST'])
+def handle_products():
+    init_sheets_api()
+    if not sheets_api:
+        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+    
+    if request.method == 'GET':
+        try:
+            result = sheets_api.get_products()
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+    
+    elif request.method == 'POST':
+        try:
+            data = request.get_json()
+            if not data or 'product' not in data:
+                return jsonify({'success': False, 'message': 'Invalid product data'})
+            
+            result = sheets_api.add_product(data['product'])
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/products/<product_id>', methods=['PUT', 'DELETE'])
+def handle_product_by_id(product_id):
+    init_sheets_api()
+    if not sheets_api:
+        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+    
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            if not data or 'product' not in data:
+                return jsonify({'success': False, 'message': 'Invalid product data'})
+            
+            result = sheets_api.update_product(product_id, data['product'])
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+    
+    elif request.method == 'DELETE':
+        try:
+            result = sheets_api.delete_product(product_id)
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/invoices', methods=['GET', 'POST'])
 def handle_invoices():
