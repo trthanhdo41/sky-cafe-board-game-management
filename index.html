@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sky Cafe & Board Game - Quản Lý Hóa Đơn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    
+    /* Dark Mode Variables */
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+      --border-color: #e2e8f0;
+      --shadow: rgba(0, 0, 0, 0.1);
+      --emerald: #10b981;
+      --emerald-dark: #059669;
+    }
+    
+    [data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #64748b;
+      --border-color: #334155;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+    
+    body {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+    
+    .card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 3px var(--shadow);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 4px 12px var(--shadow);
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background: var(--emerald);
+      color: white;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      background: var(--emerald-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .input-field {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+    }
+    
+    .input-field:focus {
+      outline: none;
+      border-color: var(--emerald);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .tab-active {
+      background: var(--emerald);
+      color: white;
+    }
+    
+    .tab-inactive {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+    
+    /* Header Button Styles */
+    .header-btn {
+      background: #f1f5f9 !important;
+      transition: all 0.2s ease;
+    }
+    
+    .header-btn:hover {
+      background: #cbd5e1 !important;
+    }
+    
+    [data-theme="dark"] .header-btn {
+      background: #1e293b !important;
+    }
+    
+    [data-theme="dark"] .header-btn:hover {
+      background: #334155 !important;
+    }
+    
+    .logout-btn {
+      background: #fee2e2 !important;
+      color: #dc2626 !important;
+      transition: all 0.2s ease;
+    }
+    
+    .logout-btn:hover {
+      background: #fecaca !important;
+    }
+    
+    [data-theme="dark"] .logout-btn {
+      background: rgba(127, 29, 29, 0.3) !important;
+      color: #f87171 !important;
+    }
+    
+    [data-theme="dark"] .logout-btn:hover {
+      background: rgba(127, 29, 29, 0.5) !important;
+    }
+    
+    /* Print Styles for A7 (74x105mm) */
+    @media print {
+      @page {
+        size: 74mm 105mm;
+        margin: 0;
+      }
+      
+      body * {
+        visibility: hidden;
+      }
+      
+      #printArea, #printArea * {
+        visibility: visible !important;
+      }
+      
+      #printArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 74mm !important;
+        height: 105mm !important;
+        background: white !important;
+        color: black !important;
+        font-size: 9px !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 3mm !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      
+      .no-print {
+        display: none !important;
+      }
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+    
+    /* Loading Spinner */
+    .spinner {
+      border: 2px solid var(--border-color);
+      border-top: 2px solid var(--emerald);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--text-tertiary);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Login Screen -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="card rounded-2xl p-8 w-full max-w-md fade-in">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold mb-2">Sky Cafe & Board Game</h1>
+        <p class="text-sm" style="color: var(--text-secondary)">Hệ Thống Quản Lý Hóa Đơn</p>
+      </div>
+      
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Tên đăng nhập</label>
+          <input type="text" id="username" class="input-field w-full px-4 py-3 rounded-lg" placeholder="Nhập tên đăng nhập" required>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Mật khẩu</label>
+          <input type="password" id="password" class="input-field w-full px-4 py-3 rounded-lg" placeholder="Nhập mật khẩu" required>
+        </div>
+        
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg font-semibold">
+          Đăng nhập
+        </button>
+      </form>
+      
+      <div id="loginError" class="hidden mt-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm text-center">
+        Tên đăng nhập hoặc mật khẩu không đúng!
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="hidden min-h-screen">
+    <!-- Header -->
+    <header class="card sticky top-0 z-50 border-b">
+      <div class="no-print max-w-7xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold">Sky Cafe</h1>
+              <p class="text-xs" style="color: var(--text-secondary)">Quản lý hóa đơn</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-3">
+            <!-- Reload Button -->
+            <button id="reloadBtn" class="header-btn p-2 rounded-lg" title="Tải lại">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </button>
+            
+            
+            <!-- Dark Mode Toggle -->
+            <button id="themeToggle" class="header-btn p-2 rounded-lg" title="Chế độ tối/sáng">
+              <svg id="iconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              <svg id="iconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+              </svg>
+            </button>
+            
+            <!-- Logout -->
+            <button id="logoutBtn" class="logout-btn px-4 py-2 rounded-lg font-medium">
+              Đăng xuất
+            </button>
+          </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="no-print flex gap-2 border-t pt-3" style="border-color: var(--border-color)">
+          <button class="tab-btn tab-active px-6 py-2 rounded-lg font-medium transition flex items-center gap-2" data-tab="invoice">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Hóa Đơn
+          </button>
+          <button class="tab-btn tab-inactive px-6 py-2 rounded-lg font-medium transition flex items-center gap-2" data-tab="dashboard">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Thống Kê
+          </button>
+          <button class="tab-btn tab-inactive px-6 py-2 rounded-lg font-medium transition flex items-center gap-2" data-tab="customers">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            Khách Hàng
+          </button>
+          <button class="tab-btn tab-inactive px-6 py-2 rounded-lg font-medium transition flex items-center gap-2" data-tab="products">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+            Sản Phẩm
+          </button>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- Tab Content -->
+    <div class="no-print max-w-7xl mx-auto p-4">
+      <!-- Invoice Tab -->
+      <div id="invoiceTab" class="tab-content fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left: Invoice Form -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Customer Info -->
+            <div class="card rounded-xl p-6">
+              <h2 class="text-xl font-bold mb-4">Thông Tin Khách Hàng</h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-2">4 Số Cuối SĐT</label>
+                  <input type="text" id="customerSearch" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập 4 số cuối..." maxlength="4">
+                  <p class="text-xs mt-1" style="color: var(--text-tertiary)">Tìm khách hàng thành viên</p>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2">Tên Khách Hàng</label>
+                  <input type="text" id="customerName" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập tên...">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2">Số Điện Thoại</label>
+                  <input type="tel" id="customerPhone" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập SĐT...">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2">Mã Khách Hàng</label>
+                  <input type="text" id="customerCode" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Tự động" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Products -->
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold">Sản Phẩm</h2>
+                <button id="addProductBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">
+                  + Thêm Sản Phẩm
+                </button>
+              </div>
+              
+              <div class="overflow-x-auto">
+                <table class="w-full" style="background: var(--bg-primary);">
+                  <thead>
+                    <tr class="border-b" style="border-color: var(--border-color); background: var(--bg-tertiary);">
+                      <th class="text-left py-3 px-2" style="color: var(--text-primary);">TT</th>
+                      <th class="text-left py-3 px-2" style="color: var(--text-primary);">Sản Phẩm</th>
+                      <th class="text-right py-3 px-2" style="color: var(--text-primary);">Đơn Giá</th>
+                      <th class="text-center py-3 px-2" style="color: var(--text-primary);">SL</th>
+                      <th class="text-right py-3 px-2" style="color: var(--text-primary);">Thành Tiền</th>
+                      <th class="text-center py-3 px-2" style="color: var(--text-primary);">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productList">
+                    <tr>
+                      <td colspan="6" class="text-center py-8" style="color: var(--text-tertiary)">
+                        Chưa có sản phẩm nào
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Discount & Payment -->
+            <div class="card rounded-xl p-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-2">Chiết Khấu (%)</label>
+                  <input type="number" id="discountPercent" class="input-field w-full px-4 py-2 rounded-lg" placeholder="0" min="0" max="100" value="0">
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-2">Hình Thức Thanh Toán</label>
+                  <select id="paymentMethod" class="input-field w-full px-4 py-2 rounded-lg">
+                    <option value="cash">Tiền Mặt</option>
+                    <option value="transfer">Chuyển Khoản</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Summary & Actions -->
+          <div class="space-y-6">
+            <!-- Summary -->
+            <div class="card rounded-xl p-6 sticky top-24">
+              <h3 class="text-lg font-bold mb-4">Tổng Kết</h3>
+              
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span style="color: var(--text-secondary)">Tổng tiền hàng:</span>
+                  <span class="font-semibold" id="subtotal">0 đ</span>
+                </div>
+                
+                <div class="flex justify-between">
+                  <span style="color: var(--text-secondary)">Chiết khấu:</span>
+                  <span class="font-semibold text-red-500" id="discountAmount">-0 đ</span>
+                </div>
+                
+                <div class="border-t pt-3" style="border-color: var(--border-color)">
+                  <div class="flex justify-between items-center">
+                    <span class="text-lg font-bold">TỔNG THANH TOÁN:</span>
+                    <span class="text-2xl font-bold text-emerald-600" id="totalAmount">0 đ</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-6">
+                <button id="saveInvoiceBtn" class="btn-primary w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Lưu & In Hóa Đơn
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Invoices List -->
+        <div class="mt-8">
+          <div class="card rounded-xl p-6">
+            <h2 class="text-xl font-bold mb-4">Danh Sách Hóa Đơn</h2>
+            <div id="invoicesList">
+              <!-- Invoices will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div id="dashboardTab" class="tab-content hidden">
+        <div class="space-y-6">
+          <!-- Filter Controls -->
+          <div class="card rounded-xl p-6">
+            <div class="flex flex-wrap items-center gap-4 mb-4">
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium">Từ ngày:</label>
+                <input type="date" id="dateFrom" class="input-field px-3 py-2 rounded-lg">
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium">Đến ngày:</label>
+                <input type="date" id="dateTo" class="input-field px-3 py-2 rounded-lg">
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium">Chu kỳ:</label>
+                <select id="periodSelect" class="input-field px-3 py-2 rounded-lg">
+                  <option value="day">Theo ngày</option>
+                  <option value="week">Theo tuần</option>
+                  <option value="month">Theo tháng</option>
+                </select>
+              </div>
+              <button id="applyFilterBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">Áp dụng</button>
+              <button id="exportExcelBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Xuất Excel
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span style="color: var(--text-secondary)" class="text-sm">Tổng Doanh Thu</span>
+                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-emerald-500 dark:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-emerald-500 dark:text-emerald-600" id="statTotalRevenue">0 đ</div>
+            </div>
+            
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span style="color: var(--text-secondary)" class="text-sm">Tổng Hóa Đơn</span>
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-500 dark:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-3xl font-bold" id="statTotalInvoices">0</div>
+            </div>
+            
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span style="color: var(--text-secondary)" class="text-sm">Tổng Khách Hàng</span>
+                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-purple-500 dark:text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-purple-500 dark:text-purple-600" id="statTotalCustomers">0</div>
+            </div>
+            
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span style="color: var(--text-secondary)" class="text-sm">Chi Tiêu TB/KH</span>
+                <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-orange-500 dark:text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-orange-500 dark:text-orange-600" id="statAvgSpent">0 đ</div>
+            </div>
+          </div>
+
+          <!-- Payment Method Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span style="color: var(--text-secondary)" class="text-sm">Tiền Mặt</span>
+                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-green-500 dark:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-green-500 dark:text-green-600" id="statCashRevenue">0 đ</div>
+            </div>
+            
+            <div class="card rounded-xl p-6">
+              <div class="flex items-center justify-between mb-2">
+                <span style="color: var(--text-secondary)" class="text-sm">Chuyển Khoản</span>
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-500 dark:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-blue-500 dark:text-blue-600" id="statTransferRevenue">0 đ</div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4">Doanh Thu Theo Thời Gian</h3>
+              <div class="relative" style="height: 300px;">
+                <canvas id="revenueChart"></canvas>
+              </div>
+            </div>
+            
+            <div class="card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4">Phân Loại Thanh Toán</h3>
+              <div class="relative" style="height: 300px;">
+                <canvas id="paymentChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Stats -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4">Sản Phẩm Bán Chạy</h3>
+              <div class="relative" style="height: 300px;">
+                <canvas id="productChart"></canvas>
+              </div>
+              </div>
+              
+            <div class="card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4">Top Khách Hàng</h3>
+              <div class="relative" style="height: 300px;">
+                <canvas id="customerChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Tables -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4">Chi Tiết Sản Phẩm</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                <thead>
+                    <tr style="background: var(--bg-tertiary);">
+                      <th class="text-left p-3">Sản Phẩm</th>
+                      <th class="text-right p-3">Số Lượng</th>
+                      <th class="text-right p-3">Doanh Thu</th>
+                  </tr>
+                </thead>
+                  <tbody id="productStatsTable">
+                    <!-- Dynamic content -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="card rounded-xl p-6">
+              <h3 class="text-lg font-bold mb-4">Chi Tiết Khách Hàng</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr style="background: var(--bg-tertiary);">
+                      <th class="text-left p-3">Khách Hàng</th>
+                      <th class="text-right p-3">Hóa Đơn</th>
+                      <th class="text-right p-3">Tổng Chi</th>
+                  </tr>
+                  </thead>
+                  <tbody id="customerStatsTable">
+                    <!-- Dynamic content -->
+                </tbody>
+              </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customers Tab -->
+      <div id="customersTab" class="tab-content hidden">
+        <div class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">Danh Sách Khách Hàng</h2>
+            <button id="addCustomerBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">+ Thêm Khách Hàng</button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full" style="background: var(--bg-primary);">
+              <thead>
+                <tr class="border-b" style="border-color: var(--border-color); background: var(--bg-tertiary);">
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Mã KH</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Tên</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">SĐT</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">4 Số Cuối</th>
+                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Tổng Chi Tiêu</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="customersList">
+                <tr>
+                  <td colspan="6" class="text-center py-8" style="color: var(--text-tertiary)">
+                    Chưa có khách hàng nào
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Tab -->
+      <div id="productsTab" class="tab-content hidden">
+        <div class="card rounded-xl p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">Danh Sách Sản Phẩm</h2>
+            <button id="addProductMenuBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">+ Thêm Sản Phẩm</button>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full" style="background: var(--bg-primary);">
+              <thead>
+                <tr class="border-b" style="border-color: var(--border-color); background: var(--bg-tertiary);">
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Mã SP</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Tên Sản Phẩm</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Danh Mục</th>
+                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Đơn Giá</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="productsMenuList">
+                <tr>
+                  <td colspan="5" class="text-center py-8" style="color: var(--text-tertiary)">
+                    Chưa có sản phẩm nào
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Area (Hidden) -->
+  <div id="printArea" style="display: none; width: 74mm; height: 105mm; padding: 3mm; font-size: 9px; line-height: 1.3; font-family: Arial, sans-serif; box-sizing: border-box;">
+    <div style="text-align: center; margin-bottom: 6px;">
+      <div style="font-weight: bold; font-size: 12px; margin-bottom: 2px;">Sky Cafe & Board Game</div>
+      <div style="font-size: 8px; margin-bottom: 1px;">44A, Đường 48 nhánh 3</div>
+      <div style="font-size: 8px; margin-bottom: 1px;">Hiệp Bình, Thủ Đức</div>
+      <div style="font-size: 8px;">ĐT: 0357732723</div>
+    </div>
+    
+    <div style="border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; text-align: center; margin: 6px 0;">
+      <div style="font-weight: bold; font-size: 11px;">HÓA ĐƠN BÁN HÀNG</div>
+    </div>
+    
+    <div style="text-align: center; margin: 4px 0; font-size: 8px;">
+      <div>Số HĐ: <span id="printInvoiceNumber">HD001</span></div>
+      <div>Ngày: <span id="printDateTime">11/10/2025 16:03</span></div>
+    </div>
+    
+    <div style="text-align: center; margin: 4px 0; font-size: 8px;">
+      <div>Mã KH: <span id="printCustomerCode">-</span></div>
+      <div>Tên Khách Hàng: <span id="printCustomerName">-</span></div>
+      <div>Điện Thoại: <span id="printCustomerPhone">-</span></div>
+    </div>
+    
+    <table style="width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 8px;">
+      <thead>
+        <tr style="border-top: 1px solid #000; border-bottom: 1px solid #000;">
+          <th style="text-align: left; padding: 2px 0;">TT</th>
+          <th style="text-align: left; padding: 2px 0;">Sản phẩm</th>
+          <th style="text-align: right; padding: 2px 0;">Đơn giá</th>
+          <th style="text-align: center; padding: 2px 0;">SL</th>
+          <th style="text-align: right; padding: 2px 0;">Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody id="printProductList"></tbody>
+    </table>
+    
+    <div style="border-top: 1px solid #000; padding-top: 3px; font-size: 8px;">
+      <div style="display: flex; justify-content: space-between; margin: 1px 0;">
+        <span>Tổng tiền hàng:</span>
+        <span id="printSubtotal">0đ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin: 1px 0;">
+        <span>Chiết khấu (<span id="printDiscountPercent">0</span>%):</span>
+        <span id="printDiscountAmount">-0đ</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin: 3px 0; font-weight: bold; font-size: 9px;">
+        <span>TỔNG THANH TOÁN:</span>
+        <span id="printTotal">0đ</span>
+      </div>
+    </div>
+    
+    <div style="border-top: 1px solid #000; padding-top: 3px; margin-top: 4px; text-align: center;">
+      <div style="font-size: 8px; margin-bottom: 3px;">
+        Hình thức: <span id="printPaymentMethod" style="font-weight: bold;">Tiền mặt</span>
+      </div>
+      <div style="margin: 5px 0; display: flex; justify-content: center;">
+        <img id="printQRCode" src="qr-banking.png" style="width: 60px; height: 60px;">
+      </div>
+      <div style="font-size: 7px;">Quét mã để chuyển khoản</div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 6px; padding-top: 4px; border-top: 1px solid #000;">
+      <div style="font-weight: bold; font-size: 9px;">Cảm ơn quý khách!</div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal -->
+  <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="card rounded-xl p-6 max-w-md w-full fade-in">
+      <h3 class="text-xl font-bold mb-4">Thêm Sản Phẩm</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Chọn Sản Phẩm</label>
+          <select id="modalProductSelect" class="input-field w-full px-4 py-2 rounded-lg">
+            <option value="">-- Chọn sản phẩm --</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Số Lượng</label>
+          <input type="number" id="modalProductQuantity" class="input-field w-full px-4 py-2 rounded-lg" value="1" min="1">
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-6">
+        <button id="confirmAddProduct" class="btn-primary flex-1 py-2 rounded-lg font-semibold">Thêm</button>
+        <button id="closeProductModal" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Customer Modal -->
+  <div id="editCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="card rounded-xl p-6 max-w-md w-full fade-in">
+      <h3 class="text-xl font-bold mb-4">Sửa Thông Tin Khách Hàng</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Tên Khách Hàng</label>
+          <input type="text" id="editCustomerName" class="input-field w-full px-4 py-2 rounded-lg">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Số Điện Thoại</label>
+          <input type="tel" id="editCustomerPhone" class="input-field w-full px-4 py-2 rounded-lg">
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-6">
+        <button id="confirmEditCustomer" class="btn-primary flex-1 py-2 rounded-lg font-semibold">Lưu</button>
+        <button id="closeEditCustomerModal" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Product Modal -->
+  <div id="editProductModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="card rounded-xl p-6 max-w-md w-full fade-in">
+      <h3 class="text-xl font-bold mb-4">Sửa Thông Tin Sản Phẩm</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Tên Sản Phẩm</label>
+          <input type="text" id="editProductName" class="input-field w-full px-4 py-2 rounded-lg">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Danh Mục</label>
+          <select id="editProductCategory" class="input-field w-full px-4 py-2 rounded-lg">
+            <option value="Đồ uống">Đồ uống</option>
+            <option value="Đồ ăn">Đồ ăn</option>
+            <option value="Dịch vụ">Dịch vụ</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Giá</label>
+          <input type="number" id="editProductPrice" class="input-field w-full px-4 py-2 rounded-lg" min="0">
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-6">
+        <button id="confirmEditProduct" class="btn-primary flex-1 py-2 rounded-lg font-semibold">Lưu</button>
+        <button id="closeEditProductModal" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="hidden fixed top-4 right-4 card rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg z-50">
+    <div class="spinner"></div>
+    <span class="text-sm font-medium">Đang xử lý...</span>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 card rounded-lg px-6 py-4 shadow-lg z-50 fade-in">
+    <div class="flex items-center gap-3">
+      <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span class="font-medium" id="toastMessage">Thao tác thành công!</span>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // CONFIGURATION
+    // ============================================================================
+    
+    const CONFIG = {
+      GOOGLE_SHEET_ID: '1ggIRSGuJ3kR1pgAkebLENRaVlJvUuIYz_wSZiqw9k8E',
+      GOOGLE_SHEET_URL: 'https://docs.google.com/spreadsheets/d/1ggIRSGuJ3kR1pgAkebLENRaVlJvUuIYz_wSZiqw9k8E/edit',
+      API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:8000/api' 
+        : 'https://sky-cafe-api.onrender.com/api', // Render backend URL
+      DEFAULT_USERNAME: 'admin-hieu',
+      DEFAULT_PASSWORD: 'admin-hieu'
+    };
+
+    // ============================================================================
+    // STATE MANAGEMENT
+    // ============================================================================
+    
+    let state = {
+      isLoggedIn: false,
+      currentTab: 'invoice',
+      theme: localStorage.getItem('theme') || 'light',
+      invoice: {
+        products: [],
+        customer: {},
+        discount: 0,
+        paymentMethod: 'cash'
+      },
+      customers: [],
+      products: [],
+      invoices: []
+    };
+
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initEventListeners();
+      checkLoginStatus();
+      // Load data from Google Sheets if API is available
+      loadDataFromSheet();
+    });
+
+    function initTheme() {
+      document.documentElement.setAttribute('data-theme', state.theme);
+      updateThemeIcons();
+    }
+
+    function updateThemeIcons() {
+      const isDark = state.theme === 'dark';
+      document.getElementById('iconSun').classList.toggle('hidden', !isDark);
+      document.getElementById('iconMoon').classList.toggle('hidden', isDark);
+    }
+
+    function checkLoginStatus() {
+      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      if (isLoggedIn) {
+        showMainApp();
+      }
+    }
+
+    // ============================================================================
+    // EVENT LISTENERS
+    // ============================================================================
+    
+    function showNotification(message, type = 'info') {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 translate-x-full`;
+      
+      // Set colors based on type
+      if (type === 'success') {
+        notification.className += ' bg-green-500 text-white';
+      } else if (type === 'error') {
+        notification.className += ' bg-red-500 text-white';
+      } else {
+        notification.className += ' bg-blue-500 text-white';
+      }
+      
+      notification.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span>${message}</span>
+          <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+      }, 100);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 300);
+      }, 5000);
+    }
+    
+    function initEventListeners() {
+      // Login
+      document.getElementById('loginForm').addEventListener('submit', handleLogin);
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+      
+      // Reload Button
+      document.getElementById('reloadBtn').addEventListener('click', () => {
+        location.reload();
+      });
+      
+      
+      // Theme Toggle
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      
+      // Tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+      
+      // Customer Search
+      document.getElementById('customerSearch').addEventListener('input', handleCustomerSearch);
+      
+      // Product Management
+      document.getElementById('addProductBtn').addEventListener('click', openProductModal);
+      document.getElementById('closeProductModal').addEventListener('click', closeProductModal);
+      document.getElementById('confirmAddProduct').addEventListener('click', addProductToInvoice);
+      
+      // Discount Calculation
+      document.getElementById('discountPercent').addEventListener('input', calculateTotal);
+      
+      // Invoice Actions
+      document.getElementById('saveInvoiceBtn').addEventListener('click', saveAndPrintInvoice);
+      
+      // Dashboard
+      document.getElementById('applyFilterBtn').addEventListener('click', loadDashboardData);
+      document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+      
+      // Customer Management
+      document.getElementById('addCustomerBtn').addEventListener('click', openAddCustomerModal);
+      document.getElementById('confirmEditCustomer').addEventListener('click', confirmEditCustomer);
+      document.getElementById('closeEditCustomerModal').addEventListener('click', () => {
+        document.getElementById('editCustomerModal').classList.add('hidden');
+      });
+      
+      // Product Menu Management
+      document.getElementById('addProductMenuBtn').addEventListener('click', openAddProductMenuModal);
+      document.getElementById('confirmEditProduct').addEventListener('click', confirmEditProduct);
+      document.getElementById('closeEditProductModal').addEventListener('click', () => {
+        document.getElementById('editProductModal').classList.add('hidden');
+      });
+    }
+
+    // ============================================================================
+    // AUTHENTICATION
+    // ============================================================================
+    
+    function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (username === CONFIG.DEFAULT_USERNAME && password === CONFIG.DEFAULT_PASSWORD) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        showMainApp();
+        showToast('Đăng nhập thành công!');
+      } else {
+        document.getElementById('loginError').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('loginError').classList.add('hidden');
+        }, 3000);
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('isLoggedIn');
+      document.getElementById('mainApp').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      showToast('Đã đăng xuất');
+    }
+
+    function showMainApp() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      // Load data from Google Sheets if API is available
+      if (CONFIG.API_BASE_URL) {
+      loadDataFromSheet();
+      } else {
+        showNotification('❌ API Server chưa được kết nối. Vui lòng khởi động server.', 'error');
+      }
+    }
+
+    // ============================================================================
+    // THEME
+    // ============================================================================
+    
+    function toggleTheme() {
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', state.theme);
+      document.documentElement.setAttribute('data-theme', state.theme);
+      updateThemeIcons();
+    }
+
+    // ============================================================================
+    // TAB NAVIGATION
+    // ============================================================================
+    
+    function switchTab(tabName) {
+      state.currentTab = tabName;
+      
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.remove('tab-inactive');
+          btn.classList.add('tab-active');
+        } else {
+          btn.classList.remove('tab-active');
+          btn.classList.add('tab-inactive');
+        }
+      });
+      
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.getElementById(tabName + 'Tab').classList.remove('hidden');
+      
+      // Load tab-specific data
+      if (tabName === 'dashboard') {
+        loadDashboard();
+      } else if (tabName === 'customers') {
+        loadCustomers();
+      } else if (tabName === 'products') {
+        loadProducts();
+      } else if (tabName === 'invoice') {
+        loadInvoices();
+      }
+    }
+
+    // ============================================================================
+    // CUSTOMER SEARCH
+    // ============================================================================
+    
+    function handleCustomerSearch(e) {
+      const last4 = e.target.value;
+      
+      
+      if (last4.length === 4) {
+        const customer = state.customers.find(c => String(c.last4) === String(last4));
+        
+        
+        if (customer) {
+          document.getElementById('customerName').value = customer.name;
+          document.getElementById('customerPhone').value = customer.phone;
+          document.getElementById('customerCode').value = customer.code;
+          showToast('Đã tìm thấy khách hàng!');
+        } else {
+          showToast('Không tìm thấy khách hàng', 'warning');
+          clearCustomerFields();
+        }
+      } else {
+        clearCustomerFields();
+      }
+    }
+
+    function clearCustomerFields() {
+      document.getElementById('customerName').value = '';
+      document.getElementById('customerPhone').value = '';
+      document.getElementById('customerCode').value = '';
+    }
+
+    // ============================================================================
+    // PRODUCT MANAGEMENT
+    // ============================================================================
+    
+    function openProductModal() {
+      if (state.products.length === 0) {
+        showToast('Vui lòng thêm sản phẩm vào menu trước!', 'warning');
+        switchTab('products');
+        return;
+      }
+      
+      const select = document.getElementById('modalProductSelect');
+      select.innerHTML = '<option value="">-- Chọn sản phẩm --</option>';
+      
+      state.products.forEach(product => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(product);
+        option.textContent = `${product.name} - ${formatMoney(product.price)}`;
+        select.appendChild(option);
+      });
+      
+      document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').classList.add('hidden');
+      document.getElementById('modalProductSelect').value = '';
+      document.getElementById('modalProductQuantity').value = '1';
+    }
+
+    function addProductToInvoice() {
+      const selectEl = document.getElementById('modalProductSelect');
+      const quantity = parseInt(document.getElementById('modalProductQuantity').value);
+      
+      if (!selectEl.value) {
+        showToast('Vui lòng chọn sản phẩm!', 'warning');
+        return;
+      }
+      
+      const product = JSON.parse(selectEl.value);
+      
+      state.invoice.products.push({
+        ...product,
+        quantity,
+        total: product.price * quantity
+      });
+      
+      renderProductList();
+      calculateTotal();
+      closeProductModal();
+      showToast('Đã thêm sản phẩm!');
+    }
+
+    function renderProductList() {
+      const tbody = document.getElementById('productList');
+      
+      if (state.invoice.products.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8" style="color: var(--text-tertiary)">
+              Chưa có sản phẩm nào
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = state.invoice.products.map((product, index) => `
+        <tr class="border-b" style="border-color: var(--border-color)" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
+          <td class="py-3 px-2 font-semibold">${index + 1}</td>
+          <td class="py-3 px-2">
+            <div class="font-medium">${product.name}</div>
+            <div class="text-sm" style="color: var(--text-secondary);">${product.category || 'Không phân loại'}</div>
+          </td>
+          <td class="py-3 px-2 text-right font-semibold text-emerald-600">${formatMoney(product.price)}</td>
+          <td class="py-3 px-2 text-center">
+            <input type="number" value="${product.quantity}" min="1" 
+                   onchange="updateQuantity(${index}, this.value)" 
+                   class="w-16 text-center border rounded px-2 py-1 text-sm font-semibold" 
+                   style="background: var(--bg-primary); color: var(--text-primary); border-color: var(--border-color);">
+          </td>
+          <td class="py-3 px-2 text-right font-bold text-emerald-600">${formatMoney(product.total)}</td>
+          <td class="py-3 px-2 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button onclick="copyProduct(${index})" class="text-blue-500 hover:text-blue-700" title="Sao chép sản phẩm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+              </button>
+              <button onclick="removeProduct(${index})" class="text-red-500 hover:text-red-700" title="Xóa sản phẩm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function removeProduct(index) {
+      state.invoice.products.splice(index, 1);
+      renderProductList();
+      calculateTotal();
+      showToast('Đã xóa sản phẩm');
+    }
+
+
+    function updateQuantity(index, newQuantity) {
+      const quantity = parseInt(newQuantity) || 1;
+      state.invoice.products[index].quantity = quantity;
+      state.invoice.products[index].total = state.invoice.products[index].price * quantity;
+      renderProductList();
+      calculateTotal();
+    }
+
+    function copyProduct(index) {
+      const product = { ...state.invoice.products[index] };
+      state.invoice.products.push(product);
+      renderProductList();
+      calculateTotal();
+      showToast('Đã sao chép sản phẩm');
+    }
+
+
+    window.removeProduct = removeProduct;
+    window.updateQuantity = updateQuantity;
+    window.copyProduct = copyProduct;
+
+    // ============================================================================
+    // INVOICE CALCULATION
+    // ============================================================================
+    
+    function calculateTotal() {
+      const subtotal = state.invoice.products.reduce((sum, p) => sum + p.total, 0);
+      const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+      const discountAmount = subtotal * (discountPercent / 100);
+      const total = subtotal - discountAmount;
+      
+      document.getElementById('subtotal').textContent = formatMoney(subtotal);
+      document.getElementById('discountAmount').textContent = '-' + formatMoney(discountAmount);
+      document.getElementById('totalAmount').textContent = formatMoney(total);
+      
+      state.invoice.subtotal = subtotal;
+      state.invoice.discountPercent = discountPercent;
+      state.invoice.discountAmount = discountAmount;
+      state.invoice.total = total;
+    }
+
+    // ============================================================================
+    // SAVE & PRINT INVOICE
+    // ============================================================================
+    
+    // Flag to prevent spam clicking
+    let isSavingInvoice = false;
+    
+    async function saveAndPrintInvoice() {
+      // Prevent spam clicking
+      if (isSavingInvoice) {
+        showToast('Đang xử lý hóa đơn, vui lòng chờ...', 'warning');
+        return;
+      }
+      
+      if (state.invoice.products.length === 0) {
+        showToast('Vui lòng thêm sản phẩm!', 'warning');
+        return;
+      }
+      
+      const customerName = document.getElementById('customerName').value;
+      const customerPhone = document.getElementById('customerPhone').value;
+      
+      if (!customerName || !customerPhone) {
+        showToast('Vui lòng nhập thông tin khách hàng!', 'warning');
+        isSavingInvoice = false; // Reset flag on early return
+        return;
+      }
+      
+      // Set flag to prevent spam
+      isSavingInvoice = true;
+      showLoading(true);
+      
+      // Disable save button and add loading animation
+      const saveButton = document.getElementById('saveInvoiceBtn');
+      if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.innerHTML = `
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Đang xử lý...
+        `;
+        saveButton.classList.add('opacity-75', 'cursor-not-allowed');
+      }
+      
+      // Check if customer exists, if not create new customer
+      let customerCode = document.getElementById('customerCode').value;
+      let customerExists = false;
+      
+      // Clean phone number (remove spaces, dashes, parentheses only)
+      let cleanPhone = customerPhone.replace(/[\s\-\(\)]/g, '');
+      console.log('🔍 Original phone:', customerPhone);
+      console.log('🔍 Clean phone (kept full number):', cleanPhone);
+      
+      // Always check if customer already exists by phone number first
+      console.log('🔍 Checking for existing customer with phone:', cleanPhone);
+      console.log('📋 Current customers in state:', state.customers);
+      
+      // Debug: Check all phone numbers in state
+      state.customers.forEach((customer, index) => {
+        const customerPhoneStr = customer.phone ? String(customer.phone) : '';
+        let cleanCustomerPhone = customerPhoneStr ? customerPhoneStr.replace(/[\s\-\(\)]/g, '') : '';
+        // Keep full phone number for comparison
+        console.log(`📞 Customer ${index}: phone="${customer.phone}" (type: ${typeof customer.phone}, clean: "${cleanCustomerPhone}"), name="${customer.name}", code="${customer.code}"`);
+        console.log(`🔍 Phone comparison: "${cleanCustomerPhone}" === "${cleanPhone}" ? ${cleanCustomerPhone === cleanPhone}`);
+      });
+      
+      const existingCustomerByPhone = state.customers.find(c => {
+        const customerPhoneStr = c.phone ? String(c.phone) : '';
+        let cleanCustomerPhone = customerPhoneStr ? customerPhoneStr.replace(/[\s\-\(\)]/g, '') : '';
+        // Keep full phone number for comparison
+        return cleanCustomerPhone === cleanPhone;
+      });
+      console.log('🔍 Found existing customer by phone:', existingCustomerByPhone);
+      
+      if (existingCustomerByPhone) {
+        // Customer already exists by phone number
+        customerCode = existingCustomerByPhone.code;
+        customerExists = true;
+        console.log('👤 Found existing customer by phone:', existingCustomerByPhone);
+        
+        // Show notification that we're using existing customer
+        showToast(`Đã tìm thấy khách hàng: ${existingCustomerByPhone.name} (${existingCustomerByPhone.code})`, 'info');
+        
+        // Update the customer code field to show the found customer
+        document.getElementById('customerCode').value = customerCode;
+      } else if (!customerCode) {
+        // Generate new customer code for new customer
+        const last4Digits = cleanPhone.slice(-4);
+        const customerNamePrefix = customerName.charAt(0).toUpperCase();
+        customerCode = customerNamePrefix + last4Digits;
+        
+        // Double check if this generated code already exists
+        const existingCustomerByCode = state.customers.find(c => c.code === customerCode);
+        
+        if (existingCustomerByCode) {
+          // Generated code already exists, append a number
+          let counter = 1;
+          let newCustomerCode = customerCode;
+          while (state.customers.find(c => c.code === newCustomerCode)) {
+            newCustomerCode = customerCode + counter;
+            counter++;
+          }
+          customerCode = newCustomerCode;
+          console.log('🔄 Generated code already exists, using:', customerCode);
+        }
+        
+        // Create new customer
+        const newCustomer = {
+          code: customerCode,
+          name: customerName,
+          phone: customerPhone, // Use original phone with leading zero
+          last4: last4Digits,
+          joinDate: new Date().toISOString().split('T')[0],
+          totalSpent: 0
+        };
+        
+        console.log('👤 Creating new customer:', newCustomer);
+        
+        // Add customer to Google Sheets
+        if (CONFIG.API_BASE_URL) {
+          try {
+            const customerResult = await callGoogleSheetsAPI('addCustomer', { customer: newCustomer });
+            if (customerResult && customerResult.success) {
+              console.log('✅ New customer added to Google Sheets');
+              customerExists = true;
+              showToast(`Đã tạo khách hàng mới: ${customerName} (${customerCode})`, 'success');
+              
+              // Add to local state immediately to prevent duplicates
+              state.customers.push(newCustomer);
+              console.log('📝 Added customer to local state:', newCustomer);
+            } else {
+              console.log('❌ Failed to add customer:', customerResult?.message);
+              showToast('Lỗi khi tạo khách hàng mới: ' + (customerResult?.message || 'Unknown error'), 'error');
+              showLoading(false);
+              return;
+            }
+          } catch (error) {
+            console.error('❌ Error adding customer:', error);
+            showToast('Lỗi khi tạo khách hàng mới: ' + error.message, 'error');
+            showLoading(false);
+            return;
+          }
+        }
+      } else {
+        // Customer code was manually entered, verify it exists
+        const existingCustomerByCode = state.customers.find(c => c.code === customerCode);
+        if (existingCustomerByCode) {
+          customerExists = true;
+          console.log('👤 Using manually entered customer code:', existingCustomerByCode);
+        } else {
+          console.log('⚠️ Manually entered customer code not found:', customerCode);
+          showToast(`Mã khách hàng "${customerCode}" không tồn tại. Sẽ tạo khách hàng mới.`, 'warning');
+          
+          // Create new customer with the manually entered code
+          const last4Digits = cleanPhone.slice(-4);
+          const newCustomer = {
+            code: customerCode,
+            name: customerName,
+            phone: customerPhone, // Use original phone with leading zero
+            last4: last4Digits,
+            joinDate: new Date().toISOString().split('T')[0],
+            totalSpent: 0
+          };
+          
+          if (CONFIG.API_BASE_URL) {
+            try {
+              const customerResult = await callGoogleSheetsAPI('addCustomer', { customer: newCustomer });
+              if (customerResult && customerResult.success) {
+                console.log('✅ New customer added with manual code');
+                customerExists = true;
+                showToast(`Đã tạo khách hàng mới: ${customerName} (${customerCode})`, 'success');
+                
+                // Add to local state immediately to prevent duplicates
+                state.customers.push(newCustomer);
+                console.log('📝 Added customer to local state:', newCustomer);
+              } else {
+                showToast('Lỗi khi tạo khách hàng mới: ' + (customerResult?.message || 'Unknown error'), 'error');
+                showLoading(false);
+                return;
+              }
+            } catch (error) {
+              console.error('❌ Error adding customer:', error);
+              showToast('Lỗi khi tạo khách hàng mới: ' + error.message, 'error');
+              showLoading(false);
+              return;
+            }
+          }
+        }
+      }
+      
+      // Prepare invoice data
+      const invoice = {
+        invoiceId: 'HD' + String(state.invoices.length + 1).padStart(4, '0'),
+        number: 'HD' + String(state.invoices.length + 1).padStart(4, '0'),
+        date: new Date().toISOString(),
+        customerCode: customerCode,
+        customerName,
+        customerPhone: customerPhone, // Use original phone with leading zero
+        products: state.invoice.products,
+        subtotal: String(parseFloat(state.invoice.subtotal) || 0), // Send as string to avoid Google Sheets auto-formatting
+        discount: String(parseFloat(state.invoice.discountAmount) || 0), // API server expects 'discount' field
+        discountPercent: String(parseFloat(state.invoice.discountPercent) || 0),
+        discountAmount: String(parseFloat(state.invoice.discountAmount) || 0),
+        total: String(parseFloat(state.invoice.total) || 0), // Send as string to avoid Google Sheets auto-formatting
+        paymentMethod: document.getElementById('paymentMethod').value
+      };
+      
+      console.log('📄 Invoice data to save:', invoice);
+      console.log('🔍 Total value type:', typeof invoice.total, 'value:', invoice.total);
+      console.log('🔍 Subtotal value type:', typeof invoice.subtotal, 'value:', invoice.subtotal);
+      
+      // Save to Google Sheets
+      if (CONFIG.API_BASE_URL) {
+        try {
+          const result = await saveToGoogleSheets(invoice);
+          if (result && result.success) {
+            // Reload data from Google Sheets
+            await loadDataFromSheet();
+            
+        showLoading(false);
+        
+        // Prepare print
+        preparePrint(invoice);
+        
+        // Print
+        window.print();
+        
+        // Reset form
+        resetInvoiceForm();
+        
+            showToast('Đã lưu hóa đơn thành công!');
+          } else {
+        showLoading(false);
+            showToast('Lỗi khi lưu hóa đơn: ' + (result?.message || 'Unknown error'), 'error');
+          }
+        } catch (error) {
+          showLoading(false);
+          showToast('Lỗi khi lưu hóa đơn: ' + error.message, 'error');
+        } finally {
+          // Reset flag to allow saving again
+          isSavingInvoice = false;
+          
+          // Re-enable save button and restore text
+          const saveButton = document.getElementById('saveInvoiceBtn');
+          if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.innerHTML = '✔ Lưu & In Hóa Đơn';
+            saveButton.classList.remove('opacity-75', 'cursor-not-allowed');
+          }
+        }
+      } else {
+        showLoading(false);
+        showToast('API Server chưa được kết nối', 'error');
+      }
+    }
+
+    function preparePrint(invoice) {
+      
+      document.getElementById('printInvoiceNumber').textContent = invoice.number;
+      document.getElementById('printDateTime').textContent = formatDateTime(new Date(invoice.date));
+      document.getElementById('printCustomerCode').textContent = invoice.customerCode;
+      document.getElementById('printCustomerName').textContent = invoice.customerName;
+      // Ensure phone number has leading zero for display
+      const phoneDisplay = invoice.customerPhone.startsWith('0') ? invoice.customerPhone : '0' + invoice.customerPhone;
+      document.getElementById('printCustomerPhone').textContent = phoneDisplay;
+      
+      const productList = document.getElementById('printProductList');
+      productList.innerHTML = invoice.products.map((p, index) => `
+        <tr style="border-bottom: 1px solid #ccc;">
+          <td style="padding: 2px 0;">${index + 1}</td>
+          <td style="padding: 2px 0;">${p.name}</td>
+          <td style="text-align: right; padding: 2px 0;">${formatMoney(p.price)}</td>
+          <td style="text-align: center; padding: 2px 0;">${p.quantity}</td>
+          <td style="text-align: right; padding: 2px 0;">${formatMoney(p.total)}</td>
+        </tr>
+      `).join('');
+      
+      document.getElementById('printSubtotal').textContent = formatMoney(invoice.subtotal);
+      document.getElementById('printDiscountPercent').textContent = invoice.discountPercent;
+      document.getElementById('printDiscountAmount').textContent = '-' + formatMoney(invoice.discountAmount);
+      document.getElementById('printTotal').textContent = formatMoney(invoice.total);
+      document.getElementById('printPaymentMethod').textContent = invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản';
+      
+      // Show/hide QR code based on payment method
+      const qrCodeContainer = document.getElementById('printQRCode').parentElement;
+      const qrCodeText = qrCodeContainer.nextElementSibling;
+      
+      if (invoice.paymentMethod === 'cash') {
+        // Hide QR code for cash payment
+        qrCodeContainer.style.display = 'none';
+        qrCodeText.style.display = 'none';
+      } else {
+        // Show QR code for bank transfer
+        qrCodeContainer.style.display = 'flex';
+        qrCodeText.style.display = 'block';
+      }
+    }
+
+    function resetInvoiceForm() {
+      state.invoice = {
+        products: [],
+        customer: {},
+        discount: 0,
+        paymentMethod: 'cash'
+      };
+      
+      document.getElementById('customerSearch').value = '';
+      clearCustomerFields();
+      document.getElementById('discountPercent').value = '0';
+      document.getElementById('paymentMethod').value = 'cash';
+      
+      renderProductList();
+      calculateTotal();
+    }
+
+    // ============================================================================
+    // CUSTOMER MANAGEMENT
+    // ============================================================================
+    
+    let editingCustomerIndex = null;
+    
+    function editCustomer(index) {
+      editingCustomerIndex = index;
+      const customer = state.customers[index];
+      
+      document.getElementById('editCustomerName').value = customer.name;
+      document.getElementById('editCustomerPhone').value = customer.phone;
+      document.getElementById('editCustomerModal').classList.remove('hidden');
+    }
+    
+    async function confirmEditCustomer() {
+      const name = document.getElementById('editCustomerName').value;
+      const phone = document.getElementById('editCustomerPhone').value;
+      
+      if (!name || !phone) {
+        showToast('Vui lòng điền đầy đủ thông tin!');
+        return;
+      }
+      
+      const customer = state.customers[editingCustomerIndex];
+      customer.name = name;
+      customer.phone = phone; // Keep original phone with leading zero
+      // Get last 4 digits from phone number (remove all non-digits first)
+      const phoneDigits = phone.replace(/\D/g, '');
+      customer.last4 = phoneDigits.slice(-4);
+      
+      // Update to Google Sheets if connected
+      if (CONFIG.API_BASE_URL) {
+        try {
+          const result = await callGoogleSheetsAPI('updateCustomer', { 
+          code: customer.code,
+          customer: customer 
+        });
+          if (result && result.success) {
+            // Reload data from Google Sheets
+            await loadDataFromSheet();
+            document.getElementById('editCustomerModal').classList.add('hidden');
+            showToast('Đã cập nhật thông tin khách hàng!');
+          } else {
+            showToast('Lỗi khi cập nhật khách hàng: ' + (result?.message || 'Unknown error'), 'error');
+          }
+        } catch (error) {
+          showToast('Lỗi khi cập nhật khách hàng: ' + error.message, 'error');
+        }
+      } else {
+        // Fallback to local update
+      loadCustomers();
+      document.getElementById('editCustomerModal').classList.add('hidden');
+      showToast('Đã cập nhật thông tin khách hàng!');
+      }
+    }
+    
+    function deleteCustomer(index) {
+      if (confirm('Xác nhận xóa khách hàng này?')) {
+        const customer = state.customers[index];
+        
+        // Delete from Google Sheets if connected
+        if (CONFIG.API_BASE_URL) {
+          callGoogleSheetsAPI('deleteCustomer', { customerId: customer.code });
+        }
+        
+        state.customers.splice(index, 1);
+        loadCustomers();
+        showToast('Đã xóa khách hàng: ' + customer.name);
+      }
+    }
+    
+    async function openAddCustomerModal() {
+      const customerName = prompt('Nhập tên khách hàng:');
+      if (!customerName) return;
+      
+      const customerPhone = prompt('Nhập số điện thoại:');
+      if (!customerPhone) return;
+      
+      // Check if phone number already exists
+      const cleanPhone = customerPhone.replace(/[\s\-\(\)]/g, '');
+      const existingCustomer = state.customers.find(c => {
+        const customerPhoneStr = c.phone ? String(c.phone).replace(/'/g, '') : '';
+        const cleanCustomerPhone = customerPhoneStr.replace(/[\s\-\(\)]/g, '');
+        return cleanCustomerPhone === cleanPhone;
+      });
+      
+      if (existingCustomer) {
+        showToast(`Số điện thoại ${customerPhone} đã tồn tại cho khách hàng: ${existingCustomer.name}`, 'warning');
+        return;
+      }
+      
+      // Get last 4 digits from phone number (remove all non-digits first)
+      const phoneDigits = customerPhone.replace(/\D/g, '');
+      const last4Digits = phoneDigits.slice(-4);
+      const customerId = customerName.split(' ').pop() + last4Digits;
+      
+      const newCustomer = {
+        code: customerId,
+        name: customerName,
+        phone: customerPhone,
+        last4: last4Digits,
+        totalSpent: 0,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Add to Google Sheets
+      if (CONFIG.API_BASE_URL) {
+        const result = await callGoogleSheetsAPI('addCustomer', { customer: newCustomer });
+        if (result && result.success) {
+          // Reload data from Google Sheets
+          await loadDataFromSheet();
+      showToast('Đã thêm khách hàng: ' + customerName);
+        } else {
+          showToast('Lỗi khi thêm khách hàng: ' + (result?.message || 'Unknown error'), 'error');
+        }
+      } else {
+        showToast('API Server chưa được kết nối', 'error');
+      }
+    }
+    
+    // ============================================================================
+    // PRODUCT MENU MANAGEMENT
+    // ============================================================================
+    
+    let editingProductIndex = null;
+    
+    function editProduct(index) {
+      editingProductIndex = index;
+      const product = state.products[index];
+      
+      document.getElementById('editProductName').value = product.name;
+      document.getElementById('editProductCategory').value = product.category;
+      document.getElementById('editProductPrice').value = product.price;
+      document.getElementById('editProductModal').classList.remove('hidden');
+    }
+    
+    async function confirmEditProduct() {
+      const name = document.getElementById('editProductName').value;
+      const category = document.getElementById('editProductCategory').value;
+      const price = parseInt(document.getElementById('editProductPrice').value);
+      
+      if (!name || !price || isNaN(price)) {
+        showToast('Vui lòng điền đầy đủ thông tin!');
+        return;
+      }
+      
+      const product = state.products[editingProductIndex];
+      product.name = name;
+      product.category = category;
+      product.price = price;
+      
+      // Update to Google Sheets if connected
+      if (CONFIG.API_BASE_URL) {
+        try {
+          const result = await callGoogleSheetsAPI('updateProduct', { 
+          code: product.code,
+          product: product 
+        });
+          if (result && result.success) {
+            // Reload data from Google Sheets
+            await loadDataFromSheet();
+            document.getElementById('editProductModal').classList.add('hidden');
+            showToast('Đã cập nhật thông tin sản phẩm!');
+          } else {
+            showToast('Lỗi khi cập nhật sản phẩm: ' + (result?.message || 'Unknown error'), 'error');
+          }
+        } catch (error) {
+          showToast('Lỗi khi cập nhật sản phẩm: ' + error.message, 'error');
+        }
+      } else {
+        // Fallback to local update
+      loadProducts();
+      populateProductModal();
+      document.getElementById('editProductModal').classList.add('hidden');
+      showToast('Đã cập nhật thông tin sản phẩm!');
+      }
+    }
+    
+    async function deleteProduct(index) {
+      if (confirm('Xác nhận xóa sản phẩm này?')) {
+        const product = state.products[index];
+        
+        // Delete from Google Sheets if connected
+        if (CONFIG.API_BASE_URL) {
+          try {
+            const result = await callGoogleSheetsAPI('deleteProduct', { productId: product.code });
+            if (result && result.success) {
+              // Reload data from Google Sheets
+              await loadDataFromSheet();
+              showToast('Đã xóa sản phẩm: ' + product.name);
+            } else {
+              showToast('Lỗi khi xóa sản phẩm: ' + (result?.message || 'Unknown error'), 'error');
+            }
+          } catch (error) {
+            showToast('Lỗi khi xóa sản phẩm: ' + error.message, 'error');
+          }
+        } else {
+          // Fallback to local deletion
+        state.products.splice(index, 1);
+        loadProducts();
+        populateProductModal();
+        showToast('Đã xóa sản phẩm: ' + product.name);
+        }
+      }
+    }
+    
+    async function openAddProductMenuModal() {
+      const productName = prompt('Nhập tên sản phẩm:');
+      if (!productName) return;
+      
+      const productCategory = prompt('Nhập danh mục (Đồ uống/Đồ ăn/Dịch vụ):', 'Đồ uống') || 'Đồ uống';
+      
+      let productPrice = 25000; // Mặc định cho đồ uống
+      
+      // Nếu không phải đồ uống thì phải nhập giá
+      if (productCategory !== 'Đồ uống') {
+        const priceInput = prompt('Nhập giá sản phẩm:');
+        if (!priceInput || isNaN(priceInput)) {
+          showToast('Giá không hợp lệ!');
+          return;
+        }
+        productPrice = parseInt(priceInput);
+      }
+      
+      const newProduct = {
+        code: 'SP' + String(state.products.length + 1).padStart(3, '0'),
+        name: productName,
+        price: productPrice,
+        category: productCategory
+      };
+      
+      // Add to Google Sheets
+      if (CONFIG.API_BASE_URL) {
+        const result = await callGoogleSheetsAPI('addProduct', { product: newProduct });
+        if (result && result.success) {
+          // Reload data from Google Sheets
+          await loadDataFromSheet();
+      showToast('Đã thêm sản phẩm: ' + productName + ' (' + formatMoney(productPrice) + ')');
+        } else {
+          showToast('Lỗi khi thêm sản phẩm: ' + (result?.message || 'Unknown error'), 'error');
+        }
+      } else {
+        showToast('API Server chưa được kết nối', 'error');
+      }
+    }
+
+    // ============================================================================
+    // GOOGLE SHEETS INTEGRATION
+    // ============================================================================
+    
+    async function callGoogleSheetsAPI(action, data = {}) {
+      console.log('🔍 callGoogleSheetsAPI called with:', { action, data, API_BASE_URL: CONFIG.API_BASE_URL });
+      
+      if (!CONFIG.API_BASE_URL) {
+        console.log('❌ API Server chưa được kết nối. Chỉ lưu local.');
+        return null;
+      }
+      
+      try {
+        let url, method, body;
+        
+        switch(action) {
+          case 'getCustomers':
+            url = `${CONFIG.API_BASE_URL}/customers`;
+            method = 'GET';
+            break;
+          case 'getProducts':
+            url = `${CONFIG.API_BASE_URL}/products`;
+            method = 'GET';
+            break;
+          case 'getInvoices':
+            url = `${CONFIG.API_BASE_URL}/invoices`;
+            method = 'GET';
+            break;
+          case 'testConnection':
+            url = `${CONFIG.API_BASE_URL}/test`;
+            method = 'GET';
+            break;
+          case 'addCustomer':
+            url = `${CONFIG.API_BASE_URL}/customers`;
+            method = 'POST';
+            body = JSON.stringify(data);
+            break;
+          case 'addProduct':
+            url = `${CONFIG.API_BASE_URL}/products`;
+            method = 'POST';
+            body = JSON.stringify(data);
+            break;
+          case 'updateCustomer':
+            url = `${CONFIG.API_BASE_URL}/customers/${data.code}`;
+            method = 'PUT';
+            body = JSON.stringify(data);
+            break;
+          case 'updateProduct':
+            url = `${CONFIG.API_BASE_URL}/products/${data.code}`;
+            method = 'PUT';
+            body = JSON.stringify(data);
+            break;
+          case 'deleteCustomer':
+            url = `${CONFIG.API_BASE_URL}/customers/${data.customerId}`;
+            method = 'DELETE';
+            break;
+          case 'deleteProduct':
+            url = `${CONFIG.API_BASE_URL}/products/${data.productId}`;
+            method = 'DELETE';
+            break;
+          case 'saveInvoice':
+            url = `${CONFIG.API_BASE_URL}/invoices`;
+            method = 'POST';
+            body = JSON.stringify(data);
+            break;
+          case 'getDashboardStats':
+            url = `${CONFIG.API_BASE_URL}/stats/dashboard`;
+            method = 'GET';
+            if (data.from && data.to) {
+              url += `?from=${data.from}&to=${data.to}`;
+            }
+            break;
+          case 'getProductStats':
+            url = `${CONFIG.API_BASE_URL}/stats/products`;
+            method = 'GET';
+            if (data.from && data.to) {
+              url += `?from=${data.from}&to=${data.to}`;
+            }
+            break;
+          case 'getCustomerStats':
+            url = `${CONFIG.API_BASE_URL}/stats/customers`;
+            method = 'GET';
+            if (data.from && data.to) {
+              url += `?from=${data.from}&to=${data.to}`;
+            }
+            break;
+          case 'getRevenueStats':
+            url = `${CONFIG.API_BASE_URL}/stats/revenue`;
+            method = 'GET';
+            let params = [];
+            if (data.period) params.push(`period=${data.period}`);
+            if (data.from) params.push(`from=${data.from}`);
+            if (data.to) params.push(`to=${data.to}`);
+            if (params.length > 0) {
+              url += `?${params.join('&')}`;
+            }
+            break;
+          case 'exportToExcel':
+            url = `${CONFIG.API_BASE_URL}/export/excel`;
+            method = 'GET';
+            if (data.from && data.to) {
+              url += `?from=${data.from}&to=${data.to}`;
+            }
+            break;
+          case 'testConnection':
+            url = `${CONFIG.API_BASE_URL}/test`;
+            method = 'GET';
+            break;
+          default:
+            console.error('Unknown action:', action);
+            return null;
+        }
+        
+        const options = {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        };
+        
+        if (body) {
+          options.body = body;
+        }
+        
+        console.log('🌐 Making API request:', { url, method, options });
+        
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+          console.log('⏰ Request timeout after 30 seconds');
+          controller.abort();
+        }, 30000); // 30 second timeout
+        
+        options.signal = controller.signal;
+        
+        console.log('📡 Sending fetch request...');
+        const response = await fetch(url, options);
+        clearTimeout(timeoutId);
+        
+        console.log('📨 Response received:', { status: response.status, statusText: response.statusText });
+        
+        const result = await response.json();
+        
+        console.log('✅ API call successful:', action, result);
+        return result;
+        
+      } catch (error) {
+        console.error('❌ API Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          action: action,
+          url: url
+        });
+        
+        if (error.name === 'AbortError') {
+          console.log('⏰ Request was aborted due to timeout');
+          return { success: false, message: 'Request timeout - API server không phản hồi' };
+        } else if (error.message.includes('fetch')) {
+          console.log('🌐 Network/fetch error detected');
+          return { success: false, message: 'Không thể kết nối đến API server' };
+        } else {
+          console.log('🔍 Other error type:', error.name);
+          return { success: false, message: error.message || 'Lỗi không xác định' };
+        }
+      }
+    }
+    
+    async function loadDataFromSheet() {
+      console.log('🚀 loadDataFromSheet started');
+      console.log('🔧 CONFIG.API_BASE_URL:', CONFIG.API_BASE_URL);
+      
+      if (!CONFIG.API_BASE_URL) {
+        console.log('❌ API Server chưa được kết nối. Không thể tải dữ liệu.');
+        showNotification('❌ API Server chưa được kết nối. Vui lòng khởi động server.', 'error');
+        return;
+      }
+      
+      console.log('⏳ Showing loading indicator...');
+      showLoading(true);
+      
+      try {
+        // Test connection first
+        console.log('🧪 Testing API connection...');
+        const testResult = await callGoogleSheetsAPI('testConnection');
+        console.log('🧪 Test result:', testResult);
+        
+        if (!testResult || !testResult.success) {
+          console.log('❌ Test connection failed:', testResult);
+          throw new Error(testResult?.message || 'API connection failed');
+        }
+        console.log('✅ API connection successful');
+        // Load customers
+        console.log('👥 Loading customers...');
+        const customersResult = await callGoogleSheetsAPI('getCustomers');
+        console.log('👥 Customers result:', customersResult);
+        
+        if (customersResult && customersResult.success && customersResult.data) {
+          // Convert Google Sheets format to local format
+          state.customers = customersResult.data.map(customer => {
+            // Parse totalSpent from "0 đ" format to number
+            let totalSpent = 0;
+            if (customer['Tổng Chi Tiêu']) {
+              const spentStr = customer['Tổng Chi Tiêu'].toString();
+              console.log('🔍 Parsing totalSpent:', spentStr, 'for customer:', customer['Tên Khách Hàng']);
+              
+              // Try different parsing methods
+              if (spentStr.includes('đ')) {
+                // Format: "125,000 đ" or "125000 đ"
+                const cleanStr = spentStr.replace(/[^\d]/g, ''); // Remove all non-digits
+                totalSpent = parseInt(cleanStr) || 0;
+              } else if (spentStr.includes(',')) {
+                // Format: "125,000"
+                const cleanStr = spentStr.replace(/,/g, '');
+                totalSpent = parseInt(cleanStr) || 0;
+              } else {
+                // Direct number
+                totalSpent = parseInt(spentStr) || 0;
+              }
+              
+              console.log('🔍 Parsed totalSpent:', totalSpent);
+            }
+            
+            return {
+              code: customer['Mã KH'],
+              name: customer['Tên Khách Hàng'],
+              phone: String(customer['Số Điện Thoại']).replace(/'/g, ''), // Remove single quotes
+              last4: customer['4 Số Cuối'],
+              joinDate: customer['Ngày Đăng Ký'],
+              totalSpent: totalSpent
+            };
+          });
+          console.log('✅ Loaded customers from Google Sheets:', state.customers.length);
+        }
+        
+        // Load products
+        console.log('📦 Loading products...');
+        const productsResult = await callGoogleSheetsAPI('getProducts');
+        console.log('📦 Products result:', productsResult);
+        
+        if (productsResult && productsResult.success && productsResult.data) {
+          // Convert Google Sheets format to local format
+          state.products = productsResult.data.map(product => ({
+            code: product['Mã SP'],
+            name: product['Tên Sản Phẩm'],
+            category: product['Danh Mục'],
+            price: parseInt(product['Đơn Giá'].replace(/[^\d]/g, '')) // Remove non-digits and convert to number
+          }));
+          console.log('✅ Loaded products from Google Sheets:', state.products.length);
+        }
+        
+        // Load invoices
+        console.log('🧾 Loading invoices...');
+        const invoicesResult = await callGoogleSheetsAPI('getInvoices');
+        console.log('🧾 Invoices result:', invoicesResult);
+        
+        if (invoicesResult && invoicesResult.success && invoicesResult.data) {
+          // Convert Google Sheets format to local format
+          state.invoices = invoicesResult.data.map(invoice => {
+            // Parse products from JSON string
+            let products = [];
+            try {
+              if (invoice['Chi Tiết SP (JSON)']) {
+                products = JSON.parse(invoice['Chi Tiết SP (JSON)']);
+              }
+            } catch (e) {
+              console.log('Error parsing products:', e);
+            }
+            
+            return {
+              invoiceId: invoice['Số HĐ'] || invoice.invoiceId,
+              date: invoice['Ngày Giờ'] || invoice.date,
+              customerName: invoice['Tên Khách'] || invoice.customerName,
+              customerPhone: String(invoice['SĐT'] || invoice.customerPhone).replace(/'/g, ''), // Remove single quotes
+              products: products,
+              subtotal: parseFloat(invoice['Tổng Tiền Hàng'] || invoice.subtotal || 0),
+              discount: parseFloat(invoice['Số Tiền Giảm'] || invoice.discount || 0),
+              total: parseFloat(invoice['Tổng Thanh Toán'] || invoice.total || 0),
+              paymentMethod: invoice['Hình Thức TT'] || invoice.paymentMethod
+            };
+          });
+          console.log('✅ Loaded invoices from Google Sheets:', state.invoices.length);
+        }
+        
+        // Load data to display
+        console.log('🎨 Loading UI components...');
+        try {
+        loadCustomers();
+          console.log('✅ loadCustomers completed');
+        } catch (e) {
+          console.error('❌ Error in loadCustomers:', e);
+        }
+        
+        try {
+        loadProducts();
+          console.log('✅ loadProducts completed');
+        } catch (e) {
+          console.error('❌ Error in loadProducts:', e);
+        }
+        
+        try {
+          loadInvoices();
+          console.log('✅ loadInvoices completed');
+        } catch (e) {
+          console.error('❌ Error in loadInvoices:', e);
+        }
+        
+        // populateProductModal function doesn't exist, skipping...
+        console.log('⏭️ Skipping populateProductModal (function not found)');
+        
+        console.log('🎉 All data loaded successfully!');
+        showLoading(false);
+        showToast(`Đã tải dữ liệu từ Google Sheets! (${state.customers.length} khách hàng, ${state.products.length} sản phẩm)`);
+        
+      } catch (error) {
+        console.error('❌ Error loading from sheets:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+        showLoading(false);
+        showNotification('❌ Lỗi kết nối Google Sheets. Vui lòng kiểm tra server và kết nối mạng.', 'error');
+      } finally {
+        // Ensure loading is always turned off
+        console.log('🔄 Finally block - turning off loading');
+        showLoading(false);
+      }
+    }
+
+    async function saveToGoogleSheets(invoice) {
+      if (!CONFIG.API_BASE_URL) {
+        console.log('API Server chưa được kết nối. Chỉ lưu local.');
+        return { success: false, message: 'API Server chưa được kết nối' };
+      }
+      
+      try {
+        const result = await callGoogleSheetsAPI('saveInvoice', { invoice: invoice });
+        if (result && result.success) {
+          console.log('Đã lưu hóa đơn vào Google Sheets');
+          return result;
+        } else {
+          console.error('Lỗi khi lưu vào Google Sheets:', result?.message);
+          return result || { success: false, message: 'Unknown error' };
+        }
+      } catch (error) {
+        console.error('Lỗi khi lưu vào Google Sheets:', error);
+        return { success: false, message: error.message };
+      }
+    }
+
+    // ============================================================================
+    // DASHBOARD
+    // ============================================================================
+    
+    // Global variables for charts
+    let revenueChartInstance = null;
+    let paymentChartInstance = null;
+    let productChartInstance = null;
+    let customerChartInstance = null;
+    
+    function loadDashboard() {
+      // Set default date range to include all invoice data (Oct 11-12, 2025)
+      document.getElementById('dateFrom').value = '2025-10-11';
+      document.getElementById('dateTo').value = '2025-10-12';
+      
+      // Load initial data
+      loadDashboardData();
+    }
+
+    async function loadDashboardData() {
+      try {
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        const period = document.getElementById('periodSelect').value;
+
+        // Load dashboard stats
+        const dashboardResponse = await callGoogleSheetsAPI('getDashboardStats', {
+          from: dateFrom,
+          to: dateTo
+        });
+
+        if (dashboardResponse.success) {
+          updateDashboardStats(dashboardResponse.data);
+        }
+
+        // Load revenue chart data
+        const revenueResponse = await callGoogleSheetsAPI('getRevenueStats', {
+          period: period,
+          from: dateFrom,
+          to: dateTo
+        });
+
+        if (revenueResponse.success) {
+          renderRevenueChart(revenueResponse.data);
+        }
+
+        // Load product stats
+        const productResponse = await callGoogleSheetsAPI('getProductStats', {
+          from: dateFrom,
+          to: dateTo
+        });
+
+        if (productResponse.success) {
+          renderProductChart(productResponse.data);
+          updateProductTable(productResponse.data);
+        }
+
+        // Load customer stats
+        const customerResponse = await callGoogleSheetsAPI('getCustomerStats', {
+          from: dateFrom,
+          to: dateTo
+        });
+
+        if (customerResponse.success) {
+          renderCustomerChart(customerResponse.data);
+          updateCustomerTable(customerResponse.data);
+        }
+
+        // Render payment chart
+        if (dashboardResponse.success && dashboardResponse.data) {
+          renderPaymentChart(dashboardResponse.data);
+        }
+
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        showToast('Lỗi khi tải dữ liệu thống kê', 'error');
+      }
+    }
+
+    function updateDashboardStats(data) {
+      document.getElementById('statTotalRevenue').textContent = formatMoney(data.total_revenue);
+      document.getElementById('statTotalInvoices').textContent = data.total_invoices;
+      document.getElementById('statTotalCustomers').textContent = data.total_customers;
+      document.getElementById('statAvgSpent').textContent = formatMoney(data.avg_customer_spent);
+      document.getElementById('statCashRevenue').textContent = formatMoney(data.cash_revenue);
+      document.getElementById('statTransferRevenue').textContent = formatMoney(data.transfer_revenue);
+    }
+
+    function renderRevenueChart(data) {
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+      if (revenueChartInstance) revenueChartInstance.destroy();
+      
+      revenueChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(item => item.period),
+          datasets: [{
+            label: 'Doanh thu',
+            data: data.map(item => item.revenue),
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatMoney(value);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderPaymentChart(data) {
+      const ctx = document.getElementById('paymentChart').getContext('2d');
+      if (paymentChartInstance) paymentChartInstance.destroy();
+      
+      paymentChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Tiền mặt', 'Chuyển khoản'],
+          datasets: [{
+            data: [data.cash_revenue, data.transfer_revenue],
+            backgroundColor: ['#10b981', '#3b82f6'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    function renderProductChart(data) {
+      const ctx = document.getElementById('productChart').getContext('2d');
+      if (productChartInstance) productChartInstance.destroy();
+      
+      const topProducts = data.slice(0, 5);
+      
+      productChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: topProducts.map(item => item.name),
+          datasets: [{
+            label: 'Doanh thu',
+            data: topProducts.map(item => item.revenue),
+            backgroundColor: '#8b5cf6',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatMoney(value);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCustomerChart(data) {
+      const ctx = document.getElementById('customerChart').getContext('2d');
+      if (customerChartInstance) customerChartInstance.destroy();
+      
+      const topCustomers = data.slice(0, 5);
+      
+      customerChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: topCustomers.map(item => item.name),
+          datasets: [{
+            label: 'Tổng chi tiêu',
+            data: topCustomers.map(item => item.total_spent),
+            backgroundColor: '#f59e0b',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatMoney(value);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateProductTable(data) {
+      const tbody = document.getElementById('productStatsTable');
+      tbody.innerHTML = data.slice(0, 10).map(product => `
+        <tr onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
+          <td class="p-3">${product.name}</td>
+          <td class="text-right p-3">${product.quantity}</td>
+          <td class="text-right p-3">${formatMoney(product.revenue)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function updateCustomerTable(data) {
+      const tbody = document.getElementById('customerStatsTable');
+      tbody.innerHTML = data.slice(0, 10).map(customer => `
+        <tr onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
+          <td class="p-3">${customer.name}</td>
+          <td class="text-right p-3">${customer.invoice_count}</td>
+          <td class="text-right p-3">${formatMoney(customer.total_spent)}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function exportToExcel() {
+      try {
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        
+        showToast('Đang xuất file Excel...', 'info');
+        
+        const response = await callGoogleSheetsAPI('exportToExcel', {
+          from: dateFrom,
+          to: dateTo
+        });
+        
+        if (response.success) {
+          showToast('Xuất Excel thành công!', 'success');
+          // In a real implementation, you would download the file
+          // For now, we'll just show a success message
+        } else {
+          showToast('Lỗi khi xuất Excel: ' + response.message, 'error');
+        }
+      } catch (error) {
+        console.error('Error exporting to Excel:', error);
+        showToast('Lỗi khi xuất Excel', 'error');
+      }
+    }
+
+    function renderCharts() {
+      // Legacy function - keeping for compatibility
+      
+      const last7Days = getLast7Days();
+      const revenueData = last7Days.map(date => {
+        const dayInvoices = state.invoices.filter(inv => 
+          new Date(inv.date).toISOString().split('T')[0] === date
+        );
+        return dayInvoices.reduce((sum, inv) => sum + inv.total, 0);
+      });
+      
+      window.revenueChartInstance = new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+          labels: last7Days.map(date => formatDate(date)),
+          datasets: [{
+            label: 'Doanh thu',
+            data: revenueData,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+      
+      // Payment Chart
+      const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+      if (window.paymentChartInstance) window.paymentChartInstance.destroy();
+      
+      const cashTotal = state.invoices.filter(inv => inv.paymentMethod === 'cash').reduce((sum, inv) => sum + inv.total, 0);
+      const transferTotal = state.invoices.filter(inv => inv.paymentMethod === 'transfer').reduce((sum, inv) => sum + inv.total, 0);
+      
+      window.paymentChartInstance = new Chart(paymentCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Tiền mặt', 'Chuyển khoản'],
+          datasets: [{
+            data: [cashTotal, transferTotal],
+            backgroundColor: ['#10b981', '#3b82f6']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+
+    function viewInvoice(invoiceNumber) {
+      const invoice = state.invoices.find(inv => inv.number === invoiceNumber);
+      if (invoice) {
+        preparePrint(invoice);
+        window.print();
+      }
+    }
+
+    window.viewInvoice = viewInvoice;
+
+
+    // ============================================================================
+    // CUSTOMERS & PRODUCTS MANAGEMENT
+    // ============================================================================
+    
+    function loadCustomers() {
+      const tbody = document.getElementById('customersList');
+      
+      if (state.customers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8" style="color: var(--text-tertiary)">
+              Chưa có khách hàng nào
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = state.customers.map((customer, index) => `
+        <tr class="border-b transition" style="border-color: var(--border-color);" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
+          <td class="py-3 px-2">${customer.code}</td>
+          <td class="py-3 px-2 font-medium">${customer.name}</td>
+          <td class="py-3 px-2">${customer.phone}</td>
+          <td class="py-3 px-2 font-mono text-emerald-600">${customer.last4}</td>
+          <td class="py-3 px-2 text-right font-semibold">${formatMoney(customer.totalSpent || 0)}</td>
+          <td class="py-3 px-2 text-center">
+            <button onclick="editCustomer(${index})" class="text-blue-600 hover:text-blue-700 text-sm font-medium mr-2">
+              Sửa
+            </button>
+            <button onclick="deleteCustomer(${index})" class="text-red-600 hover:text-red-700 text-sm font-medium">
+              Xóa
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function loadProducts() {
+      const tbody = document.getElementById('productsMenuList');
+      
+      if (state.products.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center py-8" style="color: var(--text-tertiary)">
+              Chưa có sản phẩm nào
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = state.products.map((product, index) => `
+        <tr class="border-b transition" style="border-color: var(--border-color);" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
+          <td class="py-3 px-2">${product.code}</td>
+          <td class="py-3 px-2 font-medium">${product.name}</td>
+          <td class="py-3 px-2">${product.category}</td>
+          <td class="py-3 px-2 text-right font-semibold text-emerald-600">${formatMoney(product.price)}</td>
+          <td class="py-3 px-2 text-center">
+            <button onclick="editProduct(${index})" class="text-blue-600 hover:text-blue-700 text-sm font-medium mr-2">
+              Sửa
+            </button>
+            <button onclick="deleteProduct(${index})" class="text-red-600 hover:text-red-700 text-sm font-medium">
+              Xóa
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function loadInvoices() {
+      // Find the invoices list container
+      const invoicesList = document.getElementById('invoicesList');
+      if (!invoicesList) {
+        console.log('Invoices list container not found');
+        return;
+      }
+      
+      if (state.invoices.length === 0) {
+        invoicesList.innerHTML = `
+          <div class="text-center py-8" style="color: var(--text-tertiary)">
+            Chưa có hóa đơn nào
+          </div>
+        `;
+        return;
+      }
+      
+      // Convert Google Sheets format to display format
+      const displayInvoices = state.invoices.map(invoice => {
+        // Parse products if it's a JSON string
+        let products = [];
+        if (typeof invoice.products === 'string') {
+          try {
+            products = JSON.parse(invoice.products);
+          } catch (e) {
+            products = [];
+          }
+        } else if (Array.isArray(invoice.products)) {
+          products = invoice.products;
+        }
+        
+        // Parse numeric values safely
+        const parseNumber = (value) => {
+          if (typeof value === 'number') return value;
+          if (typeof value === 'string') {
+            const parsed = parseFloat(value.replace(/[^\d.-]/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+          }
+          return 0;
+        };
+        
+        
+        return {
+          id: invoice.invoiceId || invoice.id,
+          date: invoice.date || invoice.createdAt,
+          customerName: invoice.customerName || invoice.customer_name,
+          customerPhone: invoice.customerPhone || invoice.customer_phone,
+          products: products,
+          subtotal: parseNumber(invoice.subtotal),
+          discount: parseNumber(invoice.discount),
+          total: parseNumber(invoice.total),
+          paymentMethod: invoice.paymentMethod || invoice.payment_method
+        };
+      });
+      
+      // Sort by date (newest first)
+      displayInvoices.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      invoicesList.innerHTML = `
+        <!-- Filter Controls -->
+        <div class="mb-4 p-4 rounded-lg" style="background: var(--bg-tertiary);">
+          <div class="flex flex-wrap gap-4 items-center">
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-medium">Lọc theo:</label>
+              <select id="dateFilter" class="px-3 py-1 border rounded-md text-sm" style="background: var(--bg-primary); color: var(--text-primary); border-color: var(--border-color);" onchange="filterInvoices()">
+                <option value="all">Tất cả</option>
+                <option value="today" selected>Hôm nay</option>
+                <option value="week">Tuần này</option>
+                <option value="month">Tháng này</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-medium">Hình thức:</label>
+              <select id="paymentFilter" class="px-3 py-1 border rounded-md text-sm" style="background: var(--bg-primary); color: var(--text-primary); border-color: var(--border-color);" onchange="filterInvoices()">
+                <option value="all">Tất cả</option>
+                <option value="cash">Tiền mặt</option>
+                <option value="transfer">Chuyển khoản</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-medium">Tìm kiếm:</label>
+              <input type="text" id="searchInput" class="px-3 py-1 border rounded-md text-sm" style="background: var(--bg-primary); color: var(--text-primary); border-color: var(--border-color);" placeholder="Mã HD, tên KH, SĐT..." onkeyup="filterInvoices()">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse rounded-lg shadow-sm" style="background: var(--bg-primary);">
+            <thead>
+              <tr style="background: var(--bg-tertiary);">
+                <th class="px-4 py-3 text-left text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Số HĐ</th>
+                <th class="px-4 py-3 text-left text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Ngày Giờ</th>
+                <th class="px-4 py-3 text-left text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Khách Hàng</th>
+                <th class="px-4 py-3 text-left text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Sản Phẩm</th>
+                <th class="px-4 py-3 text-right text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Tạm Tính</th>
+                <th class="px-4 py-3 text-right text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Giảm Giá</th>
+                <th class="px-4 py-3 text-right text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Tổng Tiền</th>
+                <th class="px-4 py-3 text-center text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Hình Thức</th>
+                <th class="px-4 py-3 text-center text-sm font-medium border-b" style="color: var(--text-primary); border-color: var(--border-color);">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody">
+              ${displayInvoices.map((invoice, index) => `
+                <tr class="border-b transition" data-invoice='${JSON.stringify(invoice)}' style="border-color: var(--border-color);" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
+                  <td class="px-4 py-3 text-sm font-medium" style="color: var(--text-primary);">${invoice.id}</td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--text-secondary);">${formatDateTime(new Date(invoice.date))}</td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--text-secondary);">
+                    <div>${invoice.customerName}</div>
+                    <div class="text-xs" style="color: var(--text-tertiary);">${invoice.customerPhone}</div>
+                  </td>
+                  <td class="px-4 py-3 text-sm" style="color: var(--text-secondary);">
+                    <div class="max-w-xs truncate" title="${invoice.products.map(p => `${p.name} x${p.quantity}`).join(', ')}">
+                      ${invoice.products.map(p => `${p.name} x${p.quantity}`).join(', ')}
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-right" style="color: var(--text-secondary);">${formatMoney(invoice.subtotal)}</td>
+                  <td class="px-4 py-3 text-sm text-right" style="color: var(--text-secondary);">${formatMoney(invoice.discount)}</td>
+                  <td class="px-4 py-3 text-sm text-right font-medium" style="color: var(--emerald);">${formatMoney(invoice.total)}</td>
+                  <td class="px-4 py-3 text-sm text-center">
+                    <span class="px-2 py-1 rounded-full text-xs" style="${invoice.paymentMethod === 'cash' ? 'background: rgba(59, 130, 246, 0.2); color: #60a5fa;' : 'background: rgba(16, 185, 129, 0.2); color: var(--emerald);'}">
+                      ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-center">
+                    <button class="text-xs transition" style="color: #60a5fa;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#60a5fa'" onclick="viewInvoiceDetails('${invoice.id}')">
+                      Xem
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      
+      // Auto-apply "today" filter after rendering
+      setTimeout(() => {
+        filterInvoices();
+      }, 100);
+    }
+    
+    // Filter function
+    function filterInvoices() {
+      const dateFilter = document.getElementById('dateFilter').value;
+      const paymentFilter = document.getElementById('paymentFilter').value;
+      const searchInput = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#invoicesTableBody tr');
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay());
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      rows.forEach(row => {
+        const invoiceData = JSON.parse(row.getAttribute('data-invoice'));
+        const invoiceDate = new Date(invoiceData.date);
+        
+        // Date filter
+        let dateMatch = true;
+        if (dateFilter === 'today') {
+          dateMatch = invoiceDate >= today;
+        } else if (dateFilter === 'week') {
+          dateMatch = invoiceDate >= weekStart;
+        } else if (dateFilter === 'month') {
+          dateMatch = invoiceDate >= monthStart;
+        }
+        
+        // Payment filter
+        const paymentMatch = paymentFilter === 'all' || invoiceData.paymentMethod === paymentFilter;
+        
+        // Search filter
+        const searchMatch = searchInput === '' || 
+          invoiceData.id.toLowerCase().includes(searchInput) ||
+          invoiceData.customerName.toLowerCase().includes(searchInput) ||
+          invoiceData.customerPhone.includes(searchInput) ||
+          // Also search in original phone number (without leading 0)
+          (invoiceData.customerPhone && invoiceData.customerPhone.replace(/^0/, '').includes(searchInput));
+        
+        if (dateMatch && paymentMatch && searchMatch) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    // View invoice details
+    function viewInvoiceDetails(invoiceId) {
+      const invoice = state.invoices.find(inv => (inv.invoiceId || inv.id) === invoiceId);
+      if (invoice) {
+        // Parse products
+        let products = [];
+        if (typeof invoice.products === 'string') {
+          try {
+            products = JSON.parse(invoice.products);
+          } catch (e) {
+            products = [];
+          }
+        } else if (Array.isArray(invoice.products)) {
+          products = invoice.products;
+        }
+        
+        // Parse numeric values safely
+        const parseNumber = (value) => {
+          if (typeof value === 'number') return value;
+          if (typeof value === 'string') {
+            const parsed = parseFloat(value.replace(/[^\d.-]/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+          }
+          return 0;
+        };
+        
+        const subtotal = parseNumber(invoice.subtotal);
+        const discount = parseNumber(invoice.discount);
+        const total = parseNumber(invoice.total);
+        
+        
+        const details = `
+Chi tiết hóa đơn #${invoiceId}
+
+Ngày: ${formatDateTime(new Date(invoice.date))}
+Khách hàng: ${invoice.customerName} (${invoice.customerPhone})
+Sản phẩm:
+${products.map(p => `• ${p.name} x${p.quantity} = ${formatMoney(p.total)}`).join('\n')}
+Tạm tính: ${formatMoney(subtotal)}
+Giảm giá: ${formatMoney(discount)}
+Tổng tiền: ${formatMoney(total)}
+Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'}
+        `;
+        
+        alert(details);
+      }
+    }
+
+    // ============================================================================
+    // DATA MANAGEMENT (Google Sheets Only)
+    // ============================================================================
+
+    // ============================================================================
+    // UTILITIES
+    // ============================================================================
+    
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+    }
+
+    function formatDate(date) {
+      if (typeof date === 'string') date = new Date(date);
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    function formatDateTime(date) {
+      try {
+        if (!date) return 'N/A';
+      if (typeof date === 'string') date = new Date(date);
+        if (isNaN(date.getTime())) return 'Invalid Date';
+      return date.toLocaleString('vi-VN');
+      } catch (e) {
+        console.error('Error formatting date:', e, date);
+        return 'Invalid Date';
+      }
+    }
+
+    function getLast7Days() {
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        days.push(date.toISOString().split('T')[0]);
+      }
+      return days;
+    }
+
+    function showLoading(show) {
+      document.getElementById('loadingIndicator').classList.toggle('hidden', !show);
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      toastMessage.textContent = message;
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
+

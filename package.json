@@ -1,0 +1,22 @@
+{
+  "name": "sky-cafe-board-game-management",
+  "version": "1.0.0",
+  "description": "Sky Cafe & Board Game - Quản lý hóa đơn và doanh thu",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python api_server.py",
+    "start": "python api_server.py"
+  },
+  "keywords": [
+    "sky-cafe",
+    "board-game",
+    "invoice-management",
+    "pos-system",
+    "vietnam"
+  ],
+  "author": "Sky Cafe & Board Game",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
