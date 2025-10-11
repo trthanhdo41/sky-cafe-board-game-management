@@ -56,11 +56,21 @@ class GoogleSheetsAPI:
                 'https://www.googleapis.com/auth/drive'
             ]
             
-            # Load credentials
-            creds = Credentials.from_service_account_file(
-                self.credentials_file, 
-                scopes=scope
-            )
+            # Try to load credentials from environment variable first (for Render)
+            google_credentials_json = os.environ.get('GOOGLE_CREDENTIALS')
+            if google_credentials_json:
+                # Parse JSON from environment variable
+                credentials_info = json.loads(google_credentials_json)
+                creds = Credentials.from_service_account_info(
+                    credentials_info,
+                    scopes=scope
+                )
+            else:
+                # Fallback to file (for local development)
+                creds = Credentials.from_service_account_file(
+                    self.credentials_file, 
+                    scopes=scope
+                )
             
             # Authorize and create client
             self.gc = gspread.authorize(creds)
