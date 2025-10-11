@@ -1875,8 +1875,9 @@
         return null;
       }
       
+      let url = '', method = 'GET', body = null;
+      
       try {
-        let url, method, body;
         
         switch(action) {
           case 'getCustomers':
@@ -1973,7 +1974,7 @@
             break;
           default:
             console.error('Unknown action:', action);
-            return null;
+            return { success: false, message: `Unknown action: ${action}` };
         }
         
         const options = {
@@ -2015,7 +2016,7 @@
           message: error.message,
           stack: error.stack,
           action: action,
-          url: url
+          url: url || 'undefined'
         });
         
         if (error.name === 'AbortError') {

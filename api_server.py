@@ -76,17 +76,29 @@ def get_products():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/invoices', methods=['GET'])
-def get_invoices():
+@app.route('/api/invoices', methods=['GET', 'POST'])
+def handle_invoices():
     init_sheets_api()
     if not sheets_api:
         return jsonify({'success': False, 'message': 'Google Sheets not connected'})
     
-    try:
-        result = sheets_api.get_invoices()
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+    if request.method == 'GET':
+        try:
+            result = sheets_api.get_invoices()
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
+    
+    elif request.method == 'POST':
+        try:
+            data = request.get_json()
+            if not data or 'invoice' not in data:
+                return jsonify({'success': False, 'message': 'Invalid invoice data'})
+            
+            result = sheets_api.save_invoice(data['invoice'])
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/stats/dashboard', methods=['GET'])
 def get_dashboard_stats():
