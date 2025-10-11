@@ -1433,7 +1433,13 @@
               console.log('📝 Added customer to local state:', newCustomer);
             } else {
               console.log('❌ Failed to add customer:', customerResult?.message);
-              showToast('Lỗi khi tạo khách hàng mới: ' + (customerResult?.message || 'Unknown error'), 'error');
+              
+              // Handle rate limit error specifically
+              if (customerResult?.message && customerResult.message.includes('Quota exceeded')) {
+                showToast('Google Sheets API đang bị giới hạn. Vui lòng đợi 1-2 phút rồi thử lại.', 'warning');
+              } else {
+                showToast('Lỗi khi tạo khách hàng mới: ' + (customerResult?.message || 'Unknown error'), 'error');
+              }
               showLoading(false);
               return;
             }
@@ -1867,6 +1873,10 @@
     // GOOGLE SHEETS INTEGRATION
     // ============================================================================
     
+    // Rate limiting to avoid Google Sheets API quota exceeded
+    let lastAPICall = 0;
+    const API_COOLDOWN = 1000; // 1 second between API calls
+    
     async function callGoogleSheetsAPI(action, data = {}) {
       console.log('🔍 callGoogleSheetsAPI called with:', { action, data, API_BASE_URL: CONFIG.API_BASE_URL });
       
@@ -1874,6 +1884,15 @@
         console.log('❌ API Server chưa được kết nối. Chỉ lưu local.');
         return null;
       }
+      
+      // Rate limiting
+      const now = Date.now();
+      if (now - lastAPICall < API_COOLDOWN) {
+        const waitTime = API_COOLDOWN - (now - lastAPICall);
+        console.log(`⏳ Rate limiting: waiting ${waitTime}ms`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+      lastAPICall = Date.now();
       
       let url = '', method = 'GET', body = null;
       
@@ -2575,7 +2594,7 @@
         <tr class="border-b transition" style="border-color: var(--border-color);" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='var(--bg-primary)'">
           <td class="py-3 px-2">${customer.code}</td>
           <td class="py-3 px-2 font-medium">${customer.name}</td>
-          <td class="py-3 px-2">${customer.phone}</td>
+          <td class="py-3 px-2">${customer.phone.startsWith('0') ? customer.phone : '0' + customer.phone}</td>
           <td class="py-3 px-2 font-mono text-emerald-600">${customer.last4}</td>
           <td class="py-3 px-2 text-right font-semibold">${formatMoney(customer.totalSpent || 0)}</td>
           <td class="py-3 px-2 text-center">
@@ -2731,7 +2750,7 @@
                   <td class="px-4 py-3 text-sm" style="color: var(--text-secondary);">${formatDateTime(new Date(invoice.date))}</td>
                   <td class="px-4 py-3 text-sm" style="color: var(--text-secondary);">
                     <div>${invoice.customerName}</div>
-                    <div class="text-xs" style="color: var(--text-tertiary);">${invoice.customerPhone}</div>
+                    <div class="text-xs" style="color: var(--text-tertiary);">${invoice.customerPhone.startsWith('0') ? invoice.customerPhone : '0' + invoice.customerPhone}</div>
                   </td>
                   <td class="px-4 py-3 text-sm" style="color: var(--text-secondary);">
                     <div class="max-w-xs truncate" title="${invoice.products.map(p => `${p.name} x${p.quantity}`).join(', ')}">
@@ -2799,8 +2818,8 @@
           invoiceData.id.toLowerCase().includes(searchInput) ||
           invoiceData.customerName.toLowerCase().includes(searchInput) ||
           invoiceData.customerPhone.includes(searchInput) ||
-          // Also search in original phone number (without leading 0)
-          (invoiceData.customerPhone && invoiceData.customerPhone.replace(/^0/, '').includes(searchInput));
+          // Also search in phone number with leading 0
+          (invoiceData.customerPhone && (invoiceData.customerPhone.startsWith('0') ? invoiceData.customerPhone : '0' + invoiceData.customerPhone).includes(searchInput));
         
         if (dateMatch && paymentMatch && searchMatch) {
           row.style.display = '';
@@ -2845,7 +2864,7 @@
 Chi tiết hóa đơn #${invoiceId}
 
 Ngày: ${formatDateTime(new Date(invoice.date))}
-Khách hàng: ${invoice.customerName} (${invoice.customerPhone})
+Khách hàng: ${invoice.customerName} (${invoice.customerPhone.startsWith('0') ? invoice.customerPhone : '0' + invoice.customerPhone})
 Sản phẩm:
 ${products.map(p => `• ${p.name} x${p.quantity} = ${formatMoney(p.total)}`).join('\n')}
 Tạm tính: ${formatMoney(subtotal)}

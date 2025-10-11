@@ -78,11 +78,46 @@ class GoogleSheetsAPI:
             # Open the spreadsheet
             self.sheet = self.gc.open_by_key('1ggIRSGuJ3kR1pgAkebLENRaVlJvUuIYz_wSZiqw9k8E')
             
+            # Ensure all required sheets exist
+            self.ensure_sheets_exist()
+            
             print("✅ Đã kết nối thành công với Google Sheets!")
             
         except Exception as e:
             print(f"❌ Lỗi kết nối Google Sheets: {e}")
             raise
+    
+    def ensure_sheets_exist(self):
+        """Đảm bảo tất cả sheet cần thiết tồn tại"""
+        try:
+            sheet_names = [sheet.title for sheet in self.sheet.worksheets()]
+            
+            # Create KHACH_HANG sheet if not exists
+            if 'KHACH_HANG' not in sheet_names:
+                worksheet = self.sheet.add_worksheet(title='KHACH_HANG', rows=1000, cols=10)
+                worksheet.append_row(['Mã KH', 'Tên Khách Hàng', 'Số Điện Thoại', '4 Số Cuối', 'Ngày Đăng Ký', 'Tổng Chi Tiêu'])
+                print("✅ Created KHACH_HANG sheet")
+            
+            # Create SAN_PHAM sheet if not exists
+            if 'SAN_PHAM' not in sheet_names:
+                worksheet = self.sheet.add_worksheet(title='SAN_PHAM', rows=1000, cols=10)
+                worksheet.append_row(['Mã SP', 'Tên Sản Phẩm', 'Danh Mục', 'Giá'])
+                print("✅ Created SAN_PHAM sheet")
+            
+            # Create HOA_DON sheet if not exists
+            if 'HOA_DON' not in sheet_names:
+                worksheet = self.sheet.add_worksheet(title='HOA_DON', rows=1000, cols=15)
+                worksheet.append_row(['Số HĐ', 'Ngày Giờ', 'Mã KH', 'Tên Khách', 'SĐT', 'Chi Tiết SP (JSON)', 'Tổng Tiền Hàng', 'Chiết Khấu %', 'Số Tiền Giảm', 'Tổng Thanh Toán', 'Hình Thức TT'])
+                print("✅ Created HOA_DON sheet")
+            
+            # Create THONG_KE sheet if not exists
+            if 'THONG_KE' not in sheet_names:
+                worksheet = self.sheet.add_worksheet(title='THONG_KE', rows=1000, cols=10)
+                worksheet.append_row(['Ngày', 'Doanh Thu Tiền Mặt', 'Doanh Thu Chuyển Khoản', 'Tổng Doanh Thu', 'Số Hóa Đơn'])
+                print("✅ Created THONG_KE sheet")
+                
+        except Exception as e:
+            print(f"⚠️ Warning: Could not ensure sheets exist: {e}")
     
     def get_customers(self):
         """Lấy danh sách khách hàng"""
