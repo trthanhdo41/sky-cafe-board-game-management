@@ -10,6 +10,7 @@ import json
 import os
 import xlsxwriter
 from datetime import datetime
+import pytz
 
 class GoogleSheetsAPI:
     def __init__(self, credentials_file='google-credentials.json'):
@@ -169,7 +170,7 @@ class GoogleSheetsAPI:
                 customer['name'],
                 f"'{customer['phone']}",  # Add single quote to force text format
                 customer['last4'],
-                datetime.now().strftime('%d/%m/%Y'),
+                datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y'),
                 0
             ]
             worksheet.append_row(row)
@@ -266,7 +267,7 @@ class GoogleSheetsAPI:
             worksheet = self.sheet.worksheet('HOA_DON')
             row = [
                 invoice['invoiceId'],                                    # Số HĐ
-                datetime.now().strftime('%d/%m/%Y %H:%M'),              # Ngày Giờ
+                datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y %H:%M'),              # Ngày Giờ
                 invoice['customerCode'],                                 # Mã KH
                 invoice['customerName'],                                 # Tên Khách
                 f"'{invoice['customerPhone']}",                         # SĐT (force text format)
@@ -333,7 +334,7 @@ class GoogleSheetsAPI:
         """Cập nhật thống kê"""
         try:
             worksheet = self.sheet.worksheet('THONG_KE')
-            today = datetime.now().strftime('%d/%m/%Y')
+            today = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y')
             
             # Convert to proper format for Google Sheets
             total = str(invoice['total'])

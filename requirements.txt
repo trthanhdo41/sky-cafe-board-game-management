@@ -4,3 +4,4 @@ google-auth==2.23.4
 google-auth-oauthlib==1.2.0
 google-auth-httplib2==0.1.1
 xlsxwriter==3.1.9
+pytz==2023.3
