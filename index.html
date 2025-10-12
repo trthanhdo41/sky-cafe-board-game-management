@@ -435,7 +435,7 @@
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
-                  Lưu & In Hóa Đơn
+                  Lưu & In 2 Bản Hóa Đơn
                 </button>
               </div>
             </div>
@@ -1538,14 +1538,21 @@
           if (result && result.success) {
         showLoading(false);
         
-            // Prepare print and print immediately (fast user experience)
-        preparePrint(invoice);
-        window.print();
+            // Prepare print and print 2 copies immediately (fast user experience)
+            preparePrint(invoice);
+            
+            // Print first copy
+            window.print();
+            
+            // Print second copy after a short delay
+            setTimeout(() => {
+              window.print();
+            }, 500);
         
             // Reset form immediately (don't wait for API)
         resetInvoiceForm();
         
-            showToast('Đã lưu hóa đơn thành công!');
+            showToast('Đã lưu hóa đơn thành công! Đang in 2 bản...');
             
             // Reload data from Google Sheets in background (async, don't wait)
             loadDataFromSheet().catch(err => console.log('Background reload failed:', err));
@@ -1568,7 +1575,7 @@
           const saveButton = document.getElementById('saveInvoiceBtn');
           if (saveButton) {
             saveButton.disabled = false;
-            saveButton.innerHTML = '✔ Lưu & In Hóa Đơn';
+            saveButton.innerHTML = '✔ Lưu & In 2 Bản Hóa Đơn';
             saveButton.classList.remove('opacity-75', 'cursor-not-allowed');
           }
         }
