@@ -169,7 +169,7 @@ class GoogleSheetsAPI:
                 customer['code'],
                 customer['name'],
                 f"'{customer['phone']}",  # Add single quote to force text format
-                customer['last4'],
+                f"'{customer['last4']}",  # Add single quote to force text format for last4
                 datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime('%d/%m/%Y'),
                 0
             ]
@@ -203,7 +203,7 @@ class GoogleSheetsAPI:
                 if record.get('Mã KH') == code:
                     worksheet.update_cell(i, 2, customer['name'])  # Tên
                     worksheet.update_cell(i, 3, f"'{customer['phone']}")  # SĐT (force text format)
-                    worksheet.update_cell(i, 4, customer['last4'])  # 4 số cuối
+                    worksheet.update_cell(i, 4, f"'{customer['last4']}")  # 4 số cuối (force text format)
                     return {'success': True, 'message': 'Đã cập nhật khách hàng'}
             
             return {'success': False, 'message': 'Không tìm thấy khách hàng'}
