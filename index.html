@@ -1124,7 +1124,12 @@
       
       
       if (last4.length === 4) {
-        const customer = state.customers.find(c => String(c.last4) === String(last4));
+        // Normalize both values to 4-digit strings with leading zeros
+        const searchValue = String(last4).padStart(4, '0');
+        const customer = state.customers.find(c => {
+          const customerLast4 = String(c.last4).padStart(4, '0');
+          return customerLast4 === searchValue;
+        });
         
         
         if (customer) {
@@ -2095,7 +2100,7 @@
               code: customer['Mã KH'],
               name: customer['Tên Khách Hàng'],
               phone: String(customer['Số Điện Thoại']).replace(/'/g, ''), // Remove single quotes
-              last4: customer['4 Số Cuối'],
+              last4: String(customer['4 Số Cuối']).padStart(4, '0'), // Force string and ensure 4 digits with leading zeros
               joinDate: customer['Ngày Đăng Ký'],
               totalSpent: totalSpent
             };
@@ -2580,7 +2585,7 @@
           <td class="py-3 px-2">${customer.code}</td>
           <td class="py-3 px-2 font-medium">${customer.name}</td>
           <td class="py-3 px-2">${customer.phone.startsWith('0') ? customer.phone : '0' + customer.phone}</td>
-          <td class="py-3 px-2 font-mono text-emerald-600">${customer.last4}</td>
+          <td class="py-3 px-2 font-mono text-emerald-600">${String(customer.last4).padStart(4, '0')}</td>
           <td class="py-3 px-2 text-right font-semibold">${formatMoney(customer.totalSpent || 0)}</td>
           <td class="py-3 px-2 text-center">
             <button onclick="editCustomer(${index})" class="text-blue-600 hover:text-blue-700 text-sm font-medium mr-2">
