@@ -1331,7 +1331,9 @@
       
       // Set flag to prevent spam
       isSavingInvoice = true;
-      showLoading(true);
+      
+      // Show loading indicator
+      showLoading(true, 'Đang lưu hóa đơn...');
       
       // Disable save button and add loading animation
       const saveButton = document.getElementById('saveInvoiceBtn');
@@ -1520,33 +1522,44 @@
       console.log('🔍 Total value type:', typeof invoice.total, 'value:', invoice.total);
       console.log('🔍 Subtotal value type:', typeof invoice.subtotal, 'value:', invoice.subtotal);
       
-      // Save to Google Sheets
+      // Save to Google Sheets with timeout
       if (CONFIG.API_BASE_URL) {
         try {
-          const result = await saveToGoogleSheets(invoice);
+          // Set timeout for API call (max 8 seconds)
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout: Lưu hóa đơn quá lâu')), 8000)
+          );
+          
+          const result = await Promise.race([
+            saveToGoogleSheets(invoice),
+            timeoutPromise
+          ]);
+          
           if (result && result.success) {
-            // Reload data from Google Sheets
-            await loadDataFromSheet();
-            
         showLoading(false);
         
-        // Prepare print
+            // Prepare print and print immediately (fast user experience)
         preparePrint(invoice);
-        
-        // Print
         window.print();
         
-        // Reset form
+            // Reset form immediately (don't wait for API)
         resetInvoiceForm();
         
             showToast('Đã lưu hóa đơn thành công!');
+            
+            // Reload data from Google Sheets in background (async, don't wait)
+            loadDataFromSheet().catch(err => console.log('Background reload failed:', err));
           } else {
         showLoading(false);
             showToast('Lỗi khi lưu hóa đơn: ' + (result?.message || 'Unknown error'), 'error');
           }
         } catch (error) {
           showLoading(false);
-          showToast('Lỗi khi lưu hóa đơn: ' + error.message, 'error');
+          if (error.message.includes('Timeout')) {
+            showToast('Lưu hóa đơn quá lâu, vui lòng thử lại!', 'error');
+          } else {
+            showToast('Lỗi khi lưu hóa đơn: ' + error.message, 'error');
+          }
         } finally {
           // Reset flag to allow saving again
           isSavingInvoice = false;
