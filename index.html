@@ -758,10 +758,6 @@
       <div style="font-size: 8px; margin-bottom: 3px;">
         Hình thức: <span id="printPaymentMethod" style="font-weight: bold;">Tiền mặt</span>
       </div>
-      <div style="margin: 5px 0; display: flex; justify-content: center;">
-        <img id="printQRCode" src="/qr-banking.png" style="width: 60px; height: 60px;">
-      </div>
-      <div style="font-size: 7px;">Quét mã để chuyển khoản</div>
     </div>
     
     <div style="text-align: center; margin-top: 6px; padding-top: 4px; border-top: 1px solid #000;">
@@ -1590,19 +1586,7 @@
       document.getElementById('printTotal').textContent = formatMoney(invoice.total);
       document.getElementById('printPaymentMethod').textContent = invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản';
       
-      // Show/hide QR code based on payment method
-      const qrCodeContainer = document.getElementById('printQRCode').parentElement;
-      const qrCodeText = qrCodeContainer.nextElementSibling;
-      
-      if (invoice.paymentMethod === 'cash') {
-        // Hide QR code for cash payment
-        qrCodeContainer.style.display = 'none';
-        qrCodeText.style.display = 'none';
-      } else {
-        // Show QR code for bank transfer
-        qrCodeContainer.style.display = 'flex';
-        qrCodeText.style.display = 'block';
-      }
+      // Payment method display is handled above
     }
 
     function resetInvoiceForm() {
