@@ -57,6 +57,28 @@ def create_customer():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+@app.route('/api/test-update', methods=['POST'])
+def test_update():
+    try:
+        data = request.get_json()
+        print(f"🧪 Test update with data: {data}")
+        
+        init_sheets_api()
+        if not sheets_api:
+            return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+        
+        # Test simple operation
+        worksheet = sheets_api.sheet.worksheet('KHACH_HANG')
+        all_values = worksheet.get_all_values()
+        print(f"📊 Sheet has {len(all_values)} rows")
+        
+        return jsonify({'success': True, 'message': 'Test successful', 'rows': len(all_values)})
+    except Exception as e:
+        print(f"❌ Test error: {str(e)}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/customers/<customer_code>', methods=['PUT'])
 def update_customer(customer_code):
     init_sheets_api()
@@ -147,6 +169,26 @@ def handle_customers():
             return jsonify(result)
         except Exception as e:
             return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/test-update', methods=['POST'])
+def test_update():
+    """Test endpoint để debug update customer"""
+    try:
+        data = request.get_json()
+        print(f"🧪 Test update with data: {data}")
+        
+        init_sheets_api()
+        if not sheets_api:
+            return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+        
+        # Test simple update
+        result = sheets_api.update_customer('test1111', data)
+        return jsonify(result)
+    except Exception as e:
+        print(f"❌ Test error: {str(e)}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/products', methods=['GET', 'POST'])
 def handle_products():
