@@ -1521,14 +1521,25 @@
           console.log('🔄 Generated code already exists, using:', customerCode);
         }
         
-        // Create new customer
+        // Create new customer (compatible with new API format)
         const newCustomer = {
-          code: customerCode,
-          name: customerName,
-          phone: customerPhone, // Use original phone with leading zero
-          last4: last4Digits,
-          joinDate: new Date().toISOString().split('T')[0],
-          totalSpent: 0
+          'Tên Khách Hàng': customerName,
+          'Số Điện Thoại': customerPhone, // Use original phone with leading zero
+          '4 Số Cuối': last4Digits,
+          'Ngày Đăng Ký': new Date().toISOString().split('T')[0],
+          'Tổng Chi Tiêu': 0,
+          'Biệt Danh': '',
+          'Lượt Chơi': 0,
+          'Nước': 0,
+          'Vé Freeroll': 0,
+          'Hyper': 0,
+          'Turbo': 0,
+          'Happy': 0,
+          'Deep Stack': 0,
+          'Highroller': 0,
+          'Tổng Điểm': 0,
+          'Đổi': 0,
+          'Còn Lại': 0
         };
         
         console.log('👤 Creating new customer:', newCustomer);
@@ -1536,15 +1547,23 @@
         // Add customer to Google Sheets
         if (CONFIG.API_BASE_URL) {
           try {
-            const customerResult = await callGoogleSheetsAPI('addCustomer', { customer: newCustomer });
+            const customerResult = await callGoogleSheetsAPI('addCustomer', newCustomer);
             if (customerResult && customerResult.success) {
               console.log('✅ New customer added to Google Sheets');
               customerExists = true;
               showToast(`Đã tạo khách hàng mới: ${customerName} (${customerCode})`, 'success');
               
-              // Add to local state immediately to prevent duplicates
-              state.customers.push(newCustomer);
-              console.log('📝 Added customer to local state:', newCustomer);
+              // Add to local state immediately to prevent duplicates (convert to old format)
+              const localCustomer = {
+                code: customerCode,
+                name: customerName,
+                phone: customerPhone,
+                last4: last4Digits,
+                joinDate: new Date().toISOString().split('T')[0],
+                totalSpent: 0
+              };
+              state.customers.push(localCustomer);
+              console.log('📝 Added customer to local state:', localCustomer);
             } else {
               console.log('❌ Failed to add customer:', customerResult?.message);
               
@@ -1574,28 +1593,47 @@
           console.log('⚠️ Manually entered customer code not found:', customerCode);
           showToast(`Mã khách hàng "${customerCode}" không tồn tại. Sẽ tạo khách hàng mới.`, 'warning');
           
-          // Create new customer with the manually entered code
+          // Create new customer with the manually entered code (compatible with new API format)
           const last4Digits = cleanPhone.slice(-4);
           const newCustomer = {
-            code: customerCode,
-            name: customerName,
-            phone: customerPhone, // Use original phone with leading zero
-            last4: last4Digits,
-            joinDate: new Date().toISOString().split('T')[0],
-            totalSpent: 0
+            'Tên Khách Hàng': customerName,
+            'Số Điện Thoại': customerPhone, // Use original phone with leading zero
+            '4 Số Cuối': last4Digits,
+            'Ngày Đăng Ký': new Date().toISOString().split('T')[0],
+            'Tổng Chi Tiêu': 0,
+            'Biệt Danh': '',
+            'Lượt Chơi': 0,
+            'Nước': 0,
+            'Vé Freeroll': 0,
+            'Hyper': 0,
+            'Turbo': 0,
+            'Happy': 0,
+            'Deep Stack': 0,
+            'Highroller': 0,
+            'Tổng Điểm': 0,
+            'Đổi': 0,
+            'Còn Lại': 0
           };
           
           if (CONFIG.API_BASE_URL) {
             try {
-              const customerResult = await callGoogleSheetsAPI('addCustomer', { customer: newCustomer });
+              const customerResult = await callGoogleSheetsAPI('addCustomer', newCustomer);
               if (customerResult && customerResult.success) {
                 console.log('✅ New customer added with manual code');
                 customerExists = true;
                 showToast(`Đã tạo khách hàng mới: ${customerName} (${customerCode})`, 'success');
                 
-                // Add to local state immediately to prevent duplicates
-                state.customers.push(newCustomer);
-                console.log('📝 Added customer to local state:', newCustomer);
+                // Add to local state immediately to prevent duplicates (convert to old format)
+                const localCustomer = {
+                  code: customerCode,
+                  name: customerName,
+                  phone: customerPhone,
+                  last4: last4Digits,
+                  joinDate: new Date().toISOString().split('T')[0],
+                  totalSpent: 0
+                };
+                state.customers.push(localCustomer);
+                console.log('📝 Added customer to local state:', localCustomer);
               } else {
                 showToast('Lỗi khi tạo khách hàng mới: ' + (customerResult?.message || 'Unknown error'), 'error');
                 showLoading(false);
@@ -1840,17 +1878,28 @@
       const customerId = customerName.split(' ').pop() + last4Digits;
       
       const newCustomer = {
-        code: customerId,
-        name: customerName,
-        phone: customerPhone,
-        last4: last4Digits,
-        totalSpent: 0,
-        createdAt: new Date().toISOString()
+        'Tên Khách Hàng': customerName,
+        'Số Điện Thoại': customerPhone,
+        '4 Số Cuối': last4Digits,
+        'Ngày Đăng Ký': new Date().toISOString().split('T')[0],
+        'Tổng Chi Tiêu': 0,
+        'Biệt Danh': '',
+        'Lượt Chơi': 0,
+        'Nước': 0,
+        'Vé Freeroll': 0,
+        'Hyper': 0,
+        'Turbo': 0,
+        'Happy': 0,
+        'Deep Stack': 0,
+        'Highroller': 0,
+        'Tổng Điểm': 0,
+        'Đổi': 0,
+        'Còn Lại': 0
       };
       
       // Add to Google Sheets
       if (CONFIG.API_BASE_URL) {
-        const result = await callGoogleSheetsAPI('addCustomer', { customer: newCustomer });
+        const result = await callGoogleSheetsAPI('addCustomer', newCustomer);
         if (result && result.success) {
           // Reload data from Google Sheets
           await loadDataFromSheet();
@@ -2036,7 +2085,7 @@
             method = 'GET';
             break;
           case 'addCustomer':
-            url = `${CONFIG.API_BASE_URL}/customers`;
+            url = `${CONFIG.API_BASE_URL}/api/customers`;
             method = 'POST';
             body = JSON.stringify(data);
             break;
