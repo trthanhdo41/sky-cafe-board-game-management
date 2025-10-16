@@ -23,6 +23,9 @@ class GoogleSheetsAPI:
     def _parse_invoice_date(self, invoice_date_str):
         """Convert DD/MM/YYYY HH:MM to YYYY-MM-DD for comparison"""
         try:
+            if not invoice_date_str:
+                return None
+                
             if ' ' in invoice_date_str:
                 date_part = invoice_date_str.split(' ')[0]  # Get DD/MM/YYYY part
             else:
@@ -32,6 +35,26 @@ class GoogleSheetsAPI:
             return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
         except:
             return None
+    
+    def _safe_parse_amount(self, amount_str):
+        """Safely parse amount string to float"""
+        try:
+            if not amount_str:
+                return 0.0
+            
+            # Convert to string and clean
+            amount_str = str(amount_str).strip()
+            
+            # Remove common currency symbols and formatting
+            amount_str = amount_str.replace('đ', '').replace(',', '').replace('.', '')
+            
+            # Handle empty string
+            if not amount_str:
+                return 0.0
+                
+            return float(amount_str)
+        except:
+            return 0.0
     
     def _filter_invoices_by_date(self, invoice_data, date_from, date_to):
         """Filter invoices by date range"""
@@ -370,27 +393,26 @@ class GoogleSheetsAPI:
             # Lọc theo ngày nếu có
             invoice_data = self._filter_invoices_by_date(invoice_data, date_from, date_to)
             
-            # Tính toán thống kê
-            total_revenue = sum(float(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data)
+            # Tính toán thống kê - sử dụng hàm parse an toàn
+            total_revenue = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data)
             total_invoices = len(invoice_data)
-            total_customers = len(customer_data)
+            
+            # Đếm khách hàng thực tế có hóa đơn trong khoảng thời gian
+            customer_codes_in_period = set()
+            for inv in invoice_data:
+                customer_code = inv.get('Mã KH', '')
+                if customer_code:
+                    customer_codes_in_period.add(customer_code)
+            total_customers = len(customer_codes_in_period)
+            
             total_products = len(product_data)
             
             # Thống kê theo hình thức thanh toán
-            cash_revenue = sum(float(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data if inv.get('Hình Thức TT') == 'cash')
-            transfer_revenue = sum(float(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data if inv.get('Hình Thức TT') == 'transfer')
+            cash_revenue = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data if inv.get('Hình Thức TT') == 'cash')
+            transfer_revenue = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data if inv.get('Hình Thức TT') == 'transfer')
             
-            # Thống kê khách hàng
-            total_customer_spent = 0
-            for cust in customer_data:
-                total_spent_str = str(cust.get('Tổng Chi Tiêu', '0'))
-                try:
-                    # Remove "đ" and commas, then convert to float
-                    spent = float(total_spent_str.replace('đ', '').replace(',', '').strip())
-                    total_customer_spent += spent
-                except:
-                    continue
-            
+            # Tính tổng chi tiêu khách hàng từ hóa đơn thực tế (không dùng field Tổng Chi Tiêu)
+            total_customer_spent = total_revenue  # Tổng chi tiêu = tổng doanh thu
             avg_customer_spent = total_customer_spent / total_customers if total_customers > 0 else 0
             
             return {
@@ -431,7 +453,7 @@ class GoogleSheetsAPI:
                     for product in products:
                         name = product.get('name', '')
                         quantity = int(product.get('quantity', 0))
-                        total = float(product.get('total', 0))
+                        total = self._safe_parse_amount(product.get('total', 0))
                         
                         if name in product_stats:
                             product_stats[name]['quantity'] += quantity
@@ -467,14 +489,8 @@ class GoogleSheetsAPI:
             customer_data = customers['data']
             invoice_data = invoices['data']
             
-            # Lọc hóa đơn theo ngày nếu có
-            if date_from and date_to:
-                filtered_invoices = []
-                for invoice in invoice_data:
-                    invoice_date = invoice.get('Ngày Giờ', '')
-                    if date_from <= invoice_date <= date_to:
-                        filtered_invoices.append(invoice)
-                invoice_data = filtered_invoices
+            # Lọc hóa đơn theo ngày nếu có - sử dụng hàm _filter_invoices_by_date
+            invoice_data = self._filter_invoices_by_date(invoice_data, date_from, date_to)
             
             # Thống kê khách hàng
             customer_stats = []
@@ -482,23 +498,19 @@ class GoogleSheetsAPI:
                 customer_code = customer.get('Mã KH', '')
                 customer_name = customer.get('Tên Khách Hàng', '')
                 
-                # Parse total_spent từ format "1,292,500 đ"
-                total_spent_str = str(customer.get('Tổng Chi Tiêu', '0'))
-                try:
-                    # Remove "đ" and commas, then convert to float
-                    total_spent = float(total_spent_str.replace('đ', '').replace(',', '').strip())
-                except:
-                    total_spent = 0.0
+                # Tính tổng chi tiêu từ hóa đơn thực tế (không dùng field Tổng Chi Tiêu)
+                customer_invoices = [inv for inv in invoice_data if inv.get('Mã KH') == customer_code]
+                total_spent = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in customer_invoices)
+                invoice_count = len(customer_invoices)
                 
-                # Đếm số hóa đơn của khách hàng
-                invoice_count = len([inv for inv in invoice_data if inv.get('Mã KH') == customer_code])
-                
-                customer_stats.append({
-                    'code': customer_code,
-                    'name': customer_name,
-                    'total_spent': total_spent,
-                    'invoice_count': invoice_count
-                })
+                # Chỉ thêm khách hàng có hóa đơn trong khoảng thời gian
+                if invoice_count > 0:
+                    customer_stats.append({
+                        'code': customer_code,
+                        'name': customer_name,
+                        'total_spent': total_spent,
+                        'invoice_count': invoice_count
+                    })
             
             # Sắp xếp theo tổng chi tiêu
             sorted_customers = sorted(customer_stats, key=lambda x: x['total_spent'], reverse=True)
@@ -543,7 +555,7 @@ class GoogleSheetsAPI:
                     elif period == 'month':
                         key = f"{month}/{year}"
                     
-                    revenue = float(invoice.get('Tổng Thanh Toán', 0))
+                    revenue = self._safe_parse_amount(invoice.get('Tổng Thanh Toán', 0))
                     
                     if key in revenue_by_period:
                         revenue_by_period[key] += revenue
