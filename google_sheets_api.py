@@ -329,27 +329,30 @@ class GoogleSheetsAPI:
                     'added_columns': []
                 }
             
-            # Resize worksheet to accommodate new columns
+            # Insert columns using Google Sheets API
             current_col_count = len(headers)
-            new_col_count = current_col_count + len(missing_columns)
-            worksheet.resize(rows=1000, cols=new_col_count)
-            print(f"✅ Đã mở rộng sheet thành {new_col_count} cột")
             
-            # Add headers for new columns
-            for i, col_name in enumerate(missing_columns):
-                col_letter = chr(ord('A') + current_col_count + i)
-                worksheet.update(f'{col_letter}1', col_name)
-                print(f"✅ Đã thêm cột {col_letter}: {col_name}")
-            
-            # Fill default values (0) for existing customers
-            num_rows = worksheet.row_count
-            if num_rows > 1:  # Has data rows
+            # Insert columns after the last existing column
+            if missing_columns:
+                # Insert columns starting from position 7 (after column F)
+                worksheet.insert_cols(len(missing_columns), col=7)
+                print(f"✅ Đã insert {len(missing_columns)} cột mới")
+                
+                # Add headers for new columns
                 for i, col_name in enumerate(missing_columns):
                     col_letter = chr(ord('A') + current_col_count + i)
-                    # Fill with 0 for all existing customers
-                    range_to_fill = f'{col_letter}2:{col_letter}{num_rows}'
-                    worksheet.update(range_to_fill, [[0]] * (num_rows - 1))
-                    print(f"✅ Đã điền giá trị mặc định cho cột {col_name}")
+                    worksheet.update(f'{col_letter}1', col_name)
+                    print(f"✅ Đã thêm header cột {col_letter}: {col_name}")
+                
+                # Fill default values (0) for existing customers
+                num_rows = worksheet.row_count
+                if num_rows > 1:  # Has data rows
+                    for i, col_name in enumerate(missing_columns):
+                        col_letter = chr(ord('A') + current_col_count + i)
+                        # Fill with 0 for all existing customers
+                        range_to_fill = f'{col_letter}2:{col_letter}{num_rows}'
+                        worksheet.update(range_to_fill, [[0]] * (num_rows - 1))
+                        print(f"✅ Đã điền giá trị mặc định cho cột {col_name}")
             
             return {
                 'success': True, 
