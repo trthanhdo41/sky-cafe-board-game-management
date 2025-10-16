@@ -217,25 +217,37 @@ class GoogleSheetsAPI:
             phone = customer_data.get('Số Điện Thoại', '').strip()
             customer_code = f"{name[:4]}{phone[-4:]}" if name and phone else f"KH{len(worksheet.get_all_records()) + 1:04d}"
             
+            # Format date to dd/mm/yyyy like existing customers
+            registration_date = customer_data.get('Ngày Đăng Ký', '')
+            if registration_date:
+                try:
+                    # Convert from yyyy-mm-dd to dd/mm/yyyy
+                    from datetime import datetime
+                    if '-' in registration_date:
+                        date_obj = datetime.strptime(registration_date, '%Y-%m-%d')
+                        registration_date = date_obj.strftime('%d/%m/%Y')
+                except:
+                    pass  # Keep original format if conversion fails
+            
             row_data = [
                 customer_code,  # Mã KH
                 name,  # Tên Khách Hàng
-                phone,  # Số Điện Thoại
+                f"'{phone}" if phone else '',  # Số Điện Thoại (with leading quote)
                 phone[-4:] if len(phone) >= 4 else phone,  # 4 Số Cuối
-                customer_data.get('Ngày Đăng Ký', ''),  # Ngày Đăng Ký
-                customer_data.get('Tổng Chi Tiêu', 0),  # Tổng Chi Tiêu
-                customer_data.get('Biệt Danh', ''),  # Biệt Danh
-                customer_data.get('Lượt Chơi', ''),  # Lượt Chơi
-                customer_data.get('Nước', ''),  # Nước
-                customer_data.get('Vé Freeroll', ''),  # Vé Freeroll
-                customer_data.get('Hyper', ''),  # Hyper
-                customer_data.get('Turbo', ''),  # Turbo
-                customer_data.get('Happy', ''),  # Happy
-                customer_data.get('Deep Stack', ''),  # Deep Stack
-                customer_data.get('Highroller', ''),  # Highroller
-                customer_data.get('Tổng Điểm', ''),  # Tổng Điểm
-                customer_data.get('Đổi', ''),  # Đổi
-                customer_data.get('Còn Lại', '')  # Còn Lại
+                registration_date,  # Ngày Đăng Ký (dd/mm/yyyy format)
+                '0 ₫',  # Tổng Chi Tiêu (with currency symbol)
+                '',  # Biệt Danh (empty)
+                '',  # Lượt Chơi (empty)
+                '',  # Nước (empty)
+                '',  # Vé Freeroll (empty)
+                '',  # Hyper (empty)
+                '',  # Turbo (empty)
+                '',  # Happy (empty)
+                '',  # Deep Stack (empty)
+                '',  # Highroller (empty)
+                '',  # Tổng Điểm (empty)
+                '',  # Đổi (empty)
+                ''  # Còn Lại (empty)
             ]
             
             worksheet.append_row(row_data)
