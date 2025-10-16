@@ -659,8 +659,11 @@
                 <tr class="border-b" style="border-color: var(--border-color); background: var(--bg-tertiary);">
                   <th class="text-left py-3 px-2" style="color: var(--text-primary);">Mã KH</th>
                   <th class="text-left py-3 px-2" style="color: var(--text-primary);">Tên</th>
-                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Biệt Danh</th>
                   <th class="text-left py-3 px-2" style="color: var(--text-primary);">SĐT</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">4 Số Cuối</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Ngày Đăng Ký</th>
+                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Tổng Chi Tiêu</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Biệt Danh</th>
                   <th class="text-center py-3 px-2" style="color: var(--text-primary);">Lượt Chơi</th>
                   <th class="text-center py-3 px-2" style="color: var(--text-primary);">Nước</th>
                   <th class="text-center py-3 px-2" style="color: var(--text-primary);">Vé Freeroll</th>
@@ -677,7 +680,7 @@
               </thead>
               <tbody id="customersList">
                 <tr>
-                  <td colspan="16" class="text-center py-8" style="color: var(--text-tertiary)">
+                  <td colspan="19" class="text-center py-8" style="color: var(--text-tertiary)">
                     Chưa có khách hàng nào
                   </td>
                 </tr>
@@ -1786,13 +1789,16 @@
     
     let editingCustomerIndex = null;
     
-    function editCustomer(index) {
-      editingCustomerIndex = index;
-      const customer = state.customers[index];
+    function editCustomer(customerCode) {
+      // Find customer by code
+      const customer = state.customers.find(c => c['Mã KH'] === customerCode);
+      if (!customer) {
+        showToast('Không tìm thấy khách hàng', 'error');
+        return;
+      }
       
-      document.getElementById('editCustomerName').value = customer.name;
-      document.getElementById('editCustomerPhone').value = customer.phone;
-      document.getElementById('editCustomerModal').classList.remove('hidden');
+      // TODO: Implement edit modal
+      showToast('Tính năng sửa khách hàng đang được phát triển', 'info');
     }
     
     async function confirmEditCustomer() {
@@ -3147,8 +3153,11 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
         <tr class="border-b" style="border-color: var(--border-color);">
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Mã KH'] || ''}</td>
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Tên Khách Hàng'] || ''}</td>
-          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Biệt Danh'] || ''}</td>
           <td class="py-3 px-2" style="color: var(--text-primary);">${(customer['Số Điện Thoại'] || '').replace(/'/g, '')}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['4 Số Cuối'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Ngày Đăng Ký'] || ''}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Tổng Chi Tiêu'] || ''}</td>
+          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Biệt Danh'] || ''}</td>
           <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Lượt Chơi'] || ''}</td>
           <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Nước'] || ''}</td>
           <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Vé Freeroll'] || ''}</td>
