@@ -315,6 +315,10 @@ class GoogleSheetsAPI:
             return {'success': True, 'message': 'Cập nhật khách hàng thành công'}
             
         except Exception as e:
+            print(f"❌ update_customer error: {str(e)}")
+            print(f"❌ Error type: {type(e)}")
+            import traceback
+            print(f"❌ Traceback: {traceback.format_exc()}")
             return {'success': False, 'message': str(e)}
     
     def delete_customer(self, customer_code):
