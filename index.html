@@ -875,10 +875,10 @@
 
   <!-- Add Customer Modal -->
   <div id="addCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold">Thêm Khách Hàng Mới</h3>
-        <button onclick="hideAddCustomerModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <button onclick="hideAddCustomerModal()" class="text-gray-500 hover:text-gray-700">
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
@@ -961,7 +961,7 @@
       
       <div class="flex gap-3 mt-6">
         <button onclick="createCustomer()" class="btn-primary flex-1 py-2 rounded-lg font-semibold">Tạo Khách Hàng</button>
-        <button onclick="hideAddCustomerModal()" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">Hủy</button>
+        <button onclick="hideAddCustomerModal()" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition">Hủy</button>
       </div>
     </div>
   </div>
@@ -2085,7 +2085,7 @@
             method = 'GET';
             break;
           case 'addCustomer':
-            url = `${CONFIG.API_BASE_URL}/api/customers`;
+            url = `${CONFIG.API_BASE_URL}/customers`;
             method = 'POST';
             body = JSON.stringify(data);
             break;
@@ -3189,7 +3189,7 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
 
     async function loadCustomers() {
       try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/api/customers`);
+        const response = await fetch(`${CONFIG.API_BASE_URL}/customers`);
         const result = await response.json();
         
         if (result.success) {
