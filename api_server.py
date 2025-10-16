@@ -65,9 +65,12 @@ def update_customer(customer_code):
     
     try:
         data = request.get_json()
+        print(f"🔍 Update customer {customer_code} with data: {data}")
         result = sheets_api.update_customer(customer_code, data)
+        print(f"✅ Update result: {result}")
         return jsonify(result)
     except Exception as e:
+        print(f"❌ Update error: {str(e)}")
         return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/customers/<customer_code>', methods=['DELETE'])
@@ -133,30 +136,6 @@ def handle_customers():
                 return jsonify({'success': False, 'message': 'Invalid customer data'})
             
             result = sheets_api.add_customer(data['customer'])
-            return jsonify(result)
-        except Exception as e:
-            return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/api/customers/<customer_id>', methods=['PUT', 'DELETE'])
-def handle_customer_by_id(customer_id):
-    init_sheets_api()
-    if not sheets_api:
-        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
-    
-    if request.method == 'PUT':
-        try:
-            data = request.get_json()
-            if not data or 'customer' not in data:
-                return jsonify({'success': False, 'message': 'Invalid customer data'})
-            
-            result = sheets_api.update_customer(customer_id, data['customer'])
-            return jsonify(result)
-        except Exception as e:
-            return jsonify({'success': False, 'message': str(e)})
-    
-    elif request.method == 'DELETE':
-        try:
-            result = sheets_api.delete_customer(customer_id)
             return jsonify(result)
         except Exception as e:
             return jsonify({'success': False, 'message': str(e)})
