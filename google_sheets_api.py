@@ -689,7 +689,7 @@ class GoogleSheetsAPI:
             total_customer_spent = total_revenue  # Tổng chi tiêu = tổng doanh thu
             avg_customer_spent = total_customer_spent / total_customers if total_customers > 0 else 0
             
-            debug_info['customer_codes_in_period'] = list(customer_codes_in_period)
+            debug_info['customer_names_in_period'] = list(customer_names_in_period)
             debug_info['sample_invoices'] = invoice_data[:5] if len(invoice_data) > 5 else invoice_data
             
             result = {
