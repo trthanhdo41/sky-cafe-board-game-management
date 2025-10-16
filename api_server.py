@@ -170,26 +170,6 @@ def handle_customers():
         except Exception as e:
             return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/test-update', methods=['POST'])
-def test_update():
-    """Test endpoint để debug update customer"""
-    try:
-        data = request.get_json()
-        print(f"🧪 Test update with data: {data}")
-        
-        init_sheets_api()
-        if not sheets_api:
-            return jsonify({'success': False, 'message': 'Google Sheets not connected'})
-        
-        # Test simple update
-        result = sheets_api.update_customer('test1111', data)
-        return jsonify(result)
-    except Exception as e:
-        print(f"❌ Test error: {str(e)}")
-        import traceback
-        print(f"❌ Traceback: {traceback.format_exc()}")
-        return jsonify({'success': False, 'message': str(e)})
-
 @app.route('/api/products', methods=['GET', 'POST'])
 def handle_products():
     init_sheets_api()
