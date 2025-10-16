@@ -241,18 +241,18 @@ class GoogleSheetsAPI:
                 phone[-4:] if len(phone) >= 4 else phone,  # 4 Số Cuối
                 registration_date,  # Ngày Đăng Ký (dd/mm/yyyy format)
                 0,  # Tổng Chi Tiêu (let Google Sheets format it)
-                '',  # Biệt Danh (empty)
-                '',  # Lượt Chơi (empty)
-                '',  # Nước (empty)
-                '',  # Vé Freeroll (empty)
-                '',  # Hyper (empty)
-                '',  # Turbo (empty)
-                '',  # Happy (empty)
-                '',  # Deep Stack (empty)
-                '',  # Highroller (empty)
-                '',  # Tổng Điểm (empty)
-                '',  # Đổi (empty)
-                ''  # Còn Lại (empty)
+                customer_data.get('Biệt Danh', ''),  # Biệt Danh
+                customer_data.get('Lượt Chơi', ''),  # Lượt Chơi
+                customer_data.get('Nước', ''),  # Nước
+                customer_data.get('Vé Freeroll', ''),  # Vé Freeroll
+                customer_data.get('Hyper', ''),  # Hyper
+                customer_data.get('Turbo', ''),  # Turbo
+                customer_data.get('Happy', ''),  # Happy
+                customer_data.get('Deep Stack', ''),  # Deep Stack
+                customer_data.get('Highroller', ''),  # Highroller
+                customer_data.get('Tổng Điểm', ''),  # Tổng Điểm
+                customer_data.get('Đổi', ''),  # Đổi
+                customer_data.get('Còn Lại', '')  # Còn Lại
             ]
             
             worksheet.append_row(row_data)

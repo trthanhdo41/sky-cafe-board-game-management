@@ -3233,6 +3233,23 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
         'Còn Lại': document.getElementById('addCustomerRemaining').value || ''
       };
 
+      // Validate required fields
+      if (!customerData['Tên Khách Hàng'] || !customerData['Số Điện Thoại']) {
+        showToast('Vui lòng nhập đầy đủ tên và số điện thoại', 'error');
+        return;
+      }
+
+      // Check for duplicate phone number
+      const phone = customerData['Số Điện Thoại'].replace(/'/g, '');
+      const existingCustomer = state.customers.find(c => 
+        (c['Số Điện Thoại'] || '').replace(/'/g, '') === phone
+      );
+      
+      if (existingCustomer) {
+        showToast(`Số điện thoại ${phone} đã tồn tại cho khách hàng: ${existingCustomer['Tên Khách Hàng']}`, 'error');
+        return;
+      }
+
       try {
         const response = await fetch(`${CONFIG.API_BASE_URL}/customers`, {
           method: 'POST',
