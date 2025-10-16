@@ -969,6 +969,117 @@
     </div>
   </div>
 
+  <!-- Edit Customer Modal -->
+  <div id="editCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold">Sửa Thông Tin Khách Hàng</h3>
+        <button onclick="hideEditCustomerModal()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Basic Info -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Mã KH</label>
+          <input type="text" id="editCustomerCode" class="input-field w-full px-4 py-2 rounded-lg" readonly>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Tên Khách Hàng *</label>
+          <input type="text" id="editCustomerName" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập tên..." required>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Biệt Danh</label>
+          <input type="text" id="editCustomerNickname" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập biệt danh...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Số Điện Thoại *</label>
+          <input type="text" id="editCustomerPhone" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập SĐT..." required>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">4 Số Cuối</label>
+          <input type="text" id="editCustomerLast4" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập 4 số cuối...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Ngày Đăng Ký</label>
+          <input type="text" id="editCustomerJoinDate" class="input-field w-full px-4 py-2 rounded-lg" placeholder="dd/mm/yyyy">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Tổng Chi Tiêu</label>
+          <input type="text" id="editCustomerTotalSpent" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập tổng chi tiêu...">
+        </div>
+        
+        <!-- Game Stats -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Lượt Chơi</label>
+          <input type="text" id="editCustomerPlayCount" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập lượt chơi...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Nước</label>
+          <input type="text" id="editCustomerWater" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số nước...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Vé Freeroll</label>
+          <input type="text" id="editCustomerFreeroll" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập vé freeroll...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Hyper</label>
+          <input type="text" id="editCustomerHyper" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập hyper...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Turbo</label>
+          <input type="text" id="editCustomerTurbo" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập turbo...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Happy</label>
+          <input type="text" id="editCustomerHappy" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập happy...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Deep Stack</label>
+          <input type="text" id="editCustomerDeepStack" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập deep stack...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Highroller</label>
+          <input type="text" id="editCustomerHighroller" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập highroller...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Tổng Điểm</label>
+          <input type="text" id="editCustomerTotalPoints" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập tổng điểm...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Đổi</label>
+          <input type="text" id="editCustomerExchange" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập đổi...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Còn Lại</label>
+          <input type="text" id="editCustomerRemaining" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập còn lại...">
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-6">
+        <button onclick="confirmEditCustomer()" class="flex-1 py-2 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 transition">Cập Nhật</button>
+        <button onclick="hideEditCustomerModal()" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 transition">Hủy</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="hidden fixed bottom-4 right-4 card rounded-lg px-6 py-4 shadow-lg z-50 fade-in">
     <div class="flex items-center gap-3">
@@ -1791,7 +1902,6 @@
     
     function editCustomer(customerCode) {
       console.log('🔍 editCustomer called with:', customerCode);
-      console.log('📊 state.customers:', state.customers);
       
       // Find customer by code
       const customer = state.customers.find(c => c['Mã KH'] === customerCode);
@@ -1802,49 +1912,94 @@
         return;
       }
       
-      // TODO: Implement edit modal
-      showToast('Tính năng sửa khách hàng đang được phát triển', 'info');
+      // Fill edit form with customer data
+      document.getElementById('editCustomerCode').value = customer['Mã KH'] || '';
+      document.getElementById('editCustomerName').value = customer['Tên Khách Hàng'] || '';
+      document.getElementById('editCustomerPhone').value = (customer['Số Điện Thoại'] || '').replace(/'/g, '');
+      document.getElementById('editCustomerLast4').value = customer['4 Số Cuối'] || '';
+      document.getElementById('editCustomerJoinDate').value = customer['Ngày Đăng Ký'] || '';
+      document.getElementById('editCustomerTotalSpent').value = customer['Tổng Chi Tiêu'] || '';
+      document.getElementById('editCustomerNickname').value = customer['Biệt Danh'] || '';
+      document.getElementById('editCustomerPlayCount').value = customer['Lượt Chơi'] || '';
+      document.getElementById('editCustomerWater').value = customer['Nước'] || '';
+      document.getElementById('editCustomerFreeroll').value = customer['Vé Freeroll'] || '';
+      document.getElementById('editCustomerHyper').value = customer['Hyper'] || '';
+      document.getElementById('editCustomerTurbo').value = customer['Turbo'] || '';
+      document.getElementById('editCustomerHappy').value = customer['Happy'] || '';
+      document.getElementById('editCustomerDeepStack').value = customer['Deep Stack'] || '';
+      document.getElementById('editCustomerHighroller').value = customer['Highroller'] || '';
+      document.getElementById('editCustomerTotalPoints').value = customer['Tổng Điểm'] || '';
+      document.getElementById('editCustomerExchange').value = customer['Đổi'] || '';
+      document.getElementById('editCustomerRemaining').value = customer['Còn Lại'] || '';
+      
+      // Store current customer code for update
+      window.currentEditingCustomerCode = customerCode;
+      
+      // Show edit modal
+      document.getElementById('editCustomerModal').classList.remove('hidden');
     }
     
+    function hideEditCustomerModal() {
+      document.getElementById('editCustomerModal').classList.add('hidden');
+    }
+
     async function confirmEditCustomer() {
-      const name = document.getElementById('editCustomerName').value;
-      const phone = document.getElementById('editCustomerPhone').value;
-      
-      if (!name || !phone) {
-        showToast('Vui lòng điền đầy đủ thông tin!');
+      const customerCode = window.currentEditingCustomerCode;
+      if (!customerCode) {
+        showToast('Không tìm thấy mã khách hàng', 'error');
         return;
       }
-      
-      const customer = state.customers[editingCustomerIndex];
-      customer.name = name;
-      customer.phone = phone; // Keep original phone with leading zero
-      // Get last 4 digits from phone number (remove all non-digits first)
-      const phoneDigits = phone.replace(/\D/g, '');
-      customer.last4 = phoneDigits.slice(-4);
-      
-      // Update to Google Sheets if connected
-      if (CONFIG.API_BASE_URL) {
-        try {
-          const result = await callGoogleSheetsAPI('updateCustomer', { 
-          code: customer.code,
-          customer: customer 
+
+      const customerData = {
+        'Tên Khách Hàng': document.getElementById('editCustomerName').value.trim(),
+        'Số Điện Thoại': document.getElementById('editCustomerPhone').value.trim(),
+        '4 Số Cuối': document.getElementById('editCustomerLast4').value.trim(),
+        'Ngày Đăng Ký': document.getElementById('editCustomerJoinDate').value.trim(),
+        'Tổng Chi Tiêu': document.getElementById('editCustomerTotalSpent').value.trim(),
+        'Biệt Danh': document.getElementById('editCustomerNickname').value.trim(),
+        'Lượt Chơi': document.getElementById('editCustomerPlayCount').value.trim(),
+        'Nước': document.getElementById('editCustomerWater').value.trim(),
+        'Vé Freeroll': document.getElementById('editCustomerFreeroll').value.trim(),
+        'Hyper': document.getElementById('editCustomerHyper').value.trim(),
+        'Turbo': document.getElementById('editCustomerTurbo').value.trim(),
+        'Happy': document.getElementById('editCustomerHappy').value.trim(),
+        'Deep Stack': document.getElementById('editCustomerDeepStack').value.trim(),
+        'Highroller': document.getElementById('editCustomerHighroller').value.trim(),
+        'Tổng Điểm': document.getElementById('editCustomerTotalPoints').value.trim(),
+        'Đổi': document.getElementById('editCustomerExchange').value.trim(),
+        'Còn Lại': document.getElementById('editCustomerRemaining').value.trim()
+      };
+
+      // Validate required fields
+      if (!customerData['Tên Khách Hàng'] || !customerData['Số Điện Thoại']) {
+        showToast('Vui lòng nhập đầy đủ tên và số điện thoại', 'error');
+        return;
+      }
+
+      try {
+        showLoading(true);
+        const response = await fetch(`${CONFIG.API_BASE_URL}/customers/${customerCode}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData)
         });
-          if (result && result.success) {
-            // Reload data from Google Sheets
-            await loadDataFromSheet();
-            document.getElementById('editCustomerModal').classList.add('hidden');
-            showToast('Đã cập nhật thông tin khách hàng!');
-          } else {
-            showToast('Lỗi khi cập nhật khách hàng: ' + (result?.message || 'Unknown error'), 'error');
-          }
-        } catch (error) {
-          showToast('Lỗi khi cập nhật khách hàng: ' + error.message, 'error');
+
+        const result = await response.json();
+        showLoading(false);
+
+        if (result.success) {
+          showToast('Cập nhật khách hàng thành công', 'success');
+          hideEditCustomerModal();
+          loadCustomers();
+        } else {
+          showToast(`Lỗi: ${result.message}`, 'error');
         }
-      } else {
-        // Fallback to local update
-      loadCustomers();
-      document.getElementById('editCustomerModal').classList.add('hidden');
-      showToast('Đã cập nhật thông tin khách hàng!');
+      } catch (error) {
+        showLoading(false);
+        showToast('Lỗi khi cập nhật khách hàng', 'error');
+        console.error('Error updating customer:', error);
       }
     }
     
