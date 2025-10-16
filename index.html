@@ -2941,7 +2941,7 @@
         
         return {
           id: invoice.invoiceId || invoice.id,
-          date: invoice.date || invoice.createdAt,
+          date: convertDateFormat(invoice.date || invoice.createdAt),
           customerName: invoice.customerName || invoice.customer_name,
           customerPhone: invoice.customerPhone || invoice.customer_phone,
           products: products,
@@ -3051,8 +3051,12 @@
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
       
+      // Fix week calculation - Vietnamese week starts on Monday (day 1)
       const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - today.getDay());
+      const dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+      const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert to Monday-based week
+      weekStart.setDate(today.getDate() - daysToMonday);
+      
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       
       rows.forEach(row => {
@@ -3162,6 +3166,30 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
     function formatDate(date) {
       if (typeof date === 'string') date = new Date(date);
       return date.toLocaleDateString('vi-VN');
+    }
+
+    function convertDateFormat(dateStr) {
+      try {
+        if (!dateStr) return null;
+        
+        // Handle DD/MM/YYYY HH:MM format from Google Sheets
+        if (typeof dateStr === 'string' && dateStr.includes('/')) {
+          const parts = dateStr.split(' ');
+          const datePart = parts[0]; // DD/MM/YYYY
+          const timePart = parts[1] || '00:00'; // HH:MM
+          
+          const [day, month, year] = datePart.split('/');
+          if (day && month && year) {
+            // Convert to YYYY-MM-DD HH:MM format for JavaScript Date
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${timePart}`;
+          }
+        }
+        
+        return dateStr;
+      } catch (e) {
+        console.error('Error converting date format:', e, dateStr);
+        return dateStr;
+      }
     }
 
     function formatDateTime(date) {
