@@ -218,24 +218,24 @@ class GoogleSheetsAPI:
             customer_code = f"{name[:4]}{phone[-4:]}" if name and phone else f"KH{len(worksheet.get_all_records()) + 1:04d}"
             
             row_data = [
-                customer_code,
-                name,
-                customer_data.get('Biệt Danh', ''),  # Text field
-                phone,
-                phone[-4:] if len(phone) >= 4 else phone,
-                customer_data.get('Ngày Đăng Ký', ''),
-                customer_data.get('Tổng Chi Tiêu', 0),
-                customer_data.get('Lượt Chơi', 0),  # Number field
-                customer_data.get('Nước', 0),  # Number field
-                customer_data.get('Vé Freeroll', 0),  # Number field
-                customer_data.get('Hyper', 0),  # Number field
-                customer_data.get('Turbo', 0),  # Number field
-                customer_data.get('Happy', 0),  # Number field
-                customer_data.get('Deep Stack', 0),  # Number field
-                customer_data.get('Highroller', 0),  # Number field
-                customer_data.get('Tổng Điểm', 0),  # Currency field
-                customer_data.get('Đổi', 0),  # Currency field
-                customer_data.get('Còn Lại', 0)  # Currency field
+                customer_code,  # Mã KH
+                name,  # Tên Khách Hàng
+                phone,  # Số Điện Thoại
+                phone[-4:] if len(phone) >= 4 else phone,  # 4 Số Cuối
+                customer_data.get('Ngày Đăng Ký', ''),  # Ngày Đăng Ký
+                customer_data.get('Tổng Chi Tiêu', 0),  # Tổng Chi Tiêu
+                customer_data.get('Biệt Danh', ''),  # Biệt Danh
+                customer_data.get('Lượt Chơi', ''),  # Lượt Chơi
+                customer_data.get('Nước', ''),  # Nước
+                customer_data.get('Vé Freeroll', ''),  # Vé Freeroll
+                customer_data.get('Hyper', ''),  # Hyper
+                customer_data.get('Turbo', ''),  # Turbo
+                customer_data.get('Happy', ''),  # Happy
+                customer_data.get('Deep Stack', ''),  # Deep Stack
+                customer_data.get('Highroller', ''),  # Highroller
+                customer_data.get('Tổng Điểm', ''),  # Tổng Điểm
+                customer_data.get('Đổi', ''),  # Đổi
+                customer_data.get('Còn Lại', '')  # Còn Lại
             ]
             
             worksheet.append_row(row_data)
