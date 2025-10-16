@@ -191,16 +191,22 @@ def get_dashboard_stats():
     try:
         date_from = request.args.get('from')
         date_to = request.args.get('to')
+        debug_mode = request.args.get('debug', 'false').lower() == 'true'
         
-        print(f"🔍 API Server: Dashboard stats called with from={date_from}, to={date_to}")
+        result = sheets_api.get_dashboard_stats(date_from, date_to, debug_mode)
         
-        result = sheets_api.get_dashboard_stats(date_from, date_to)
-        
-        print(f"🔍 API Server: Result = {result}")
+        # Add debug info if requested
+        if debug_mode:
+            debug_info = {
+                'date_from': date_from,
+                'date_to': date_to,
+                'debug_mode': True,
+                'timestamp': datetime.now().isoformat()
+            }
+            result['debug_info'] = debug_info
         
         return jsonify(result)
     except Exception as e:
-        print(f"🔍 API Server: Error = {e}")
         return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/stats/products', methods=['GET'])

@@ -375,10 +375,10 @@ class GoogleSheetsAPI:
         except Exception as e:
             print(f"Lỗi cập nhật thống kê: {e}")
 
-    def get_dashboard_stats(self, date_from=None, date_to=None):
+    def get_dashboard_stats(self, date_from=None, date_to=None, debug_mode=False):
         """Lấy thống kê tổng quan dashboard"""
         try:
-            print(f"🔍 Dashboard stats called with: from={date_from}, to={date_to}")
+            debug_info = {}
             
             # Lấy dữ liệu từ các sheet
             invoices = self.get_invoices()
@@ -392,12 +392,16 @@ class GoogleSheetsAPI:
             customer_data = customers['data']
             product_data = products['data']
             
-            print(f"🔍 Total invoices before filter: {len(invoice_data)}")
+            debug_info['total_invoices_before_filter'] = len(invoice_data)
+            debug_info['total_customers_before_filter'] = len(customer_data)
+            debug_info['total_products'] = len(product_data)
             
             # Lọc theo ngày nếu có
             invoice_data = self._filter_invoices_by_date(invoice_data, date_from, date_to)
             
-            print(f"🔍 Total invoices after filter: {len(invoice_data)}")
+            debug_info['total_invoices_after_filter'] = len(invoice_data)
+            debug_info['date_from'] = date_from
+            debug_info['date_to'] = date_to
             
             # Tính toán thống kê - sử dụng hàm parse an toàn
             total_revenue = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data)
@@ -421,9 +425,10 @@ class GoogleSheetsAPI:
             total_customer_spent = total_revenue  # Tổng chi tiêu = tổng doanh thu
             avg_customer_spent = total_customer_spent / total_customers if total_customers > 0 else 0
             
-            print(f"🔍 Final stats: revenue={total_revenue}, invoices={total_invoices}, customers={total_customers}")
+            debug_info['customer_codes_in_period'] = list(customer_codes_in_period)
+            debug_info['sample_invoices'] = invoice_data[:5] if len(invoice_data) > 5 else invoice_data
             
-            return {
+            result = {
                 'success': True,
                 'data': {
                     'total_revenue': total_revenue,
@@ -437,6 +442,11 @@ class GoogleSheetsAPI:
                     'date_range': {'from': date_from, 'to': date_to}
                 }
             }
+            
+            if debug_mode:
+                result['debug_info'] = debug_info
+            
+            return result
         except Exception as e:
             return {'success': False, 'message': str(e)}
 
