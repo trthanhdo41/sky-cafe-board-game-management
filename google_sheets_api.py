@@ -309,9 +309,9 @@ class GoogleSheetsAPI:
                 customer_data.get('Còn Lại', '')  # Còn Lại
             ]
             
-            # Update the row with new data
-            end_col = chr(ord('A') + len(row_data) - 1)  # Calculate end column
-            worksheet.update(f'A{row_index}:{end_col}{row_index}', [row_data])
+            # Update the row with new data (18 columns: A to R)
+            print(f"📝 Updating row {row_index} with data: {row_data}")
+            worksheet.update(f'A{row_index}:R{row_index}', [row_data])
             return {'success': True, 'message': 'Cập nhật khách hàng thành công'}
             
         except Exception as e:
