@@ -191,9 +191,16 @@ def get_dashboard_stats():
     try:
         date_from = request.args.get('from')
         date_to = request.args.get('to')
+        
+        print(f"🔍 API Server: Dashboard stats called with from={date_from}, to={date_to}")
+        
         result = sheets_api.get_dashboard_stats(date_from, date_to)
+        
+        print(f"🔍 API Server: Result = {result}")
+        
         return jsonify(result)
     except Exception as e:
+        print(f"🔍 API Server: Error = {e}")
         return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/stats/products', methods=['GET'])
