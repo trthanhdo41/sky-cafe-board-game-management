@@ -496,22 +496,6 @@ class GoogleSheetsAPI:
         except Exception as e:
             return {'success': False, 'message': str(e)}
     
-    def update_customer(self, code, customer):
-        """Cập nhật thông tin khách hàng"""
-        try:
-            worksheet = self.sheet.worksheet('KHACH_HANG')
-            records = worksheet.get_all_records()
-            
-            for i, record in enumerate(records, start=2):  # Start from row 2 (skip header)
-                if record.get('Mã KH') == code:
-                    worksheet.update_cell(i, 2, customer['name'])  # Tên
-                    worksheet.update_cell(i, 3, f"'{customer['phone']}")  # SĐT (force text format)
-                    worksheet.update_cell(i, 4, customer['last4'])  # 4 số cuối
-                    return {'success': True, 'message': 'Đã cập nhật khách hàng'}
-            
-            return {'success': False, 'message': 'Không tìm thấy khách hàng'}
-        except Exception as e:
-            return {'success': False, 'message': str(e)}
     
     def update_product(self, code, product):
         """Cập nhật thông tin sản phẩm"""
