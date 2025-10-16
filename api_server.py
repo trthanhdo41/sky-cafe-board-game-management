@@ -66,11 +66,19 @@ def update_customer(customer_code):
     try:
         data = request.get_json()
         print(f"🔍 Update customer {customer_code} with data: {data}")
+        
+        # Test if sheets_api exists and has update_customer method
+        if not hasattr(sheets_api, 'update_customer'):
+            return jsonify({'success': False, 'message': 'update_customer method not found'})
+        
         result = sheets_api.update_customer(customer_code, data)
         print(f"✅ Update result: {result}")
         return jsonify(result)
     except Exception as e:
         print(f"❌ Update error: {str(e)}")
+        print(f"❌ Error type: {type(e)}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
         return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/api/customers/<customer_code>', methods=['DELETE'])
