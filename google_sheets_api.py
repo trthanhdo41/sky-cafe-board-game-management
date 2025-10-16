@@ -25,15 +25,35 @@ class GoogleSheetsAPI:
         try:
             if not invoice_date_str:
                 return None
-                
+            
+            # Convert to string and strip whitespace
+            invoice_date_str = str(invoice_date_str).strip()
+            
+            # Handle different date formats
             if ' ' in invoice_date_str:
                 date_part = invoice_date_str.split(' ')[0]  # Get DD/MM/YYYY part
             else:
                 date_part = invoice_date_str
             
-            day, month, year = date_part.split('/')
-            return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
-        except:
+            # Split by '/' and ensure we have 3 parts
+            date_parts = date_part.split('/')
+            if len(date_parts) != 3:
+                return None
+            
+            day, month, year = date_parts
+            
+            # Validate and format
+            day = day.zfill(2)
+            month = month.zfill(2)
+            year = year.zfill(4)
+            
+            # Basic validation
+            if len(year) != 4 or int(month) > 12 or int(day) > 31:
+                return None
+            
+            return f"{year}-{month}-{day}"
+        except Exception as e:
+            print(f"Error parsing date '{invoice_date_str}': {e}")
             return None
     
     def _safe_parse_amount(self, amount_str):
@@ -62,12 +82,22 @@ class GoogleSheetsAPI:
             return invoice_data
         
         filtered_invoices = []
+        date_parse_errors = []
+        
         for invoice in invoice_data:
             invoice_date = invoice.get('Ngày Giờ', '')
             formatted_date = self._parse_invoice_date(invoice_date)
             
-            if formatted_date and date_from <= formatted_date <= date_to:
+            if formatted_date is None:
+                date_parse_errors.append(f"Failed to parse: '{invoice_date}'")
+                continue
+            
+            if date_from <= formatted_date <= date_to:
                 filtered_invoices.append(invoice)
+        
+        # Debug info
+        if date_parse_errors:
+            print(f"Date parse errors: {date_parse_errors[:5]}")  # Show first 5 errors
         
         return filtered_invoices
     
