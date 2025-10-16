@@ -265,38 +265,45 @@ class GoogleSheetsAPI:
         """Cập nhật khách hàng"""
         try:
             worksheet = self.sheet.worksheet('KHACH_HANG')
-            records = worksheet.get_all_records()
+            all_values = worksheet.get_all_values()
+            
+            if len(all_values) < 2:
+                return {'success': False, 'message': 'Không có dữ liệu khách hàng'}
+            
+            headers = all_values[0]
             
             # Find customer row
             row_index = None
-            for i, record in enumerate(records):
-                if record.get('Mã KH') == customer_code:
-                    row_index = i + 2  # +2 because sheets are 1-indexed and we have headers
+            for i, row in enumerate(all_values[1:], start=2):  # Start from row 2 (skip header)
+                if len(row) > 0 and row[0] == customer_code:  # Check Mã KH column
+                    row_index = i
                     break
             
             if not row_index:
                 return {'success': False, 'message': 'Không tìm thấy khách hàng'}
             
-            # Update data
+            # Update data - match the order from create_customer
+            phone = customer_data.get('Số Điện Thoại', '').replace("'", '') if customer_data.get('Số Điện Thoại') else ''
+            
             row_data = [
-                customer_code,
-                customer_data.get('Tên Khách Hàng', ''),
-                customer_data.get('Biệt Danh', ''),
-                customer_data.get('Số Điện Thoại', ''),
-                customer_data.get('4 Số Cuối', ''),
-                customer_data.get('Ngày Đăng Ký', ''),
-                customer_data.get('Tổng Chi Tiêu', 0),
-                customer_data.get('Lượt Chơi', 0),
-                customer_data.get('Nước', 0),
-                customer_data.get('Vé Freeroll', 0),
-                customer_data.get('Hyper', 0),
-                customer_data.get('Turbo', 0),
-                customer_data.get('Happy', 0),
-                customer_data.get('Deep Stack', 0),
-                customer_data.get('Highroller', 0),
-                customer_data.get('Tổng Điểm', 0),
-                customer_data.get('Đổi', 0),
-                customer_data.get('Còn Lại', 0)
+                customer_code,  # Mã KH
+                customer_data.get('Tên Khách Hàng', ''),  # Tên Khách Hàng
+                f"'{phone}" if phone else '',  # Số Điện Thoại (with leading quote)
+                phone[-4:] if len(phone) >= 4 else phone,  # 4 Số Cuối
+                customer_data.get('Ngày Đăng Ký', ''),  # Ngày Đăng Ký
+                customer_data.get('Tổng Chi Tiêu', 0),  # Tổng Chi Tiêu
+                customer_data.get('Biệt Danh', ''),  # Biệt Danh
+                customer_data.get('Lượt Chơi', ''),  # Lượt Chơi
+                customer_data.get('Nước', ''),  # Nước
+                customer_data.get('Vé Freeroll', ''),  # Vé Freeroll
+                customer_data.get('Hyper', ''),  # Hyper
+                customer_data.get('Turbo', ''),  # Turbo
+                customer_data.get('Happy', ''),  # Happy
+                customer_data.get('Deep Stack', ''),  # Deep Stack
+                customer_data.get('Highroller', ''),  # Highroller
+                customer_data.get('Tổng Điểm', ''),  # Tổng Điểm
+                customer_data.get('Đổi', ''),  # Đổi
+                customer_data.get('Còn Lại', '')  # Còn Lại
             ]
             
             worksheet.update(f'A{row_index}:R{row_index}', [row_data])
