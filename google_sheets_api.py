@@ -58,7 +58,7 @@ class GoogleSheetsAPI:
     
     def _filter_invoices_by_date(self, invoice_data, date_from, date_to):
         """Filter invoices by date range"""
-        if not date_from or not date_to:
+        if not date_from or not date_to or date_from == '' or date_to == '':
             return invoice_data
         
         filtered_invoices = []
@@ -378,6 +378,8 @@ class GoogleSheetsAPI:
     def get_dashboard_stats(self, date_from=None, date_to=None):
         """Lấy thống kê tổng quan dashboard"""
         try:
+            print(f"🔍 Dashboard stats called with: from={date_from}, to={date_to}")
+            
             # Lấy dữ liệu từ các sheet
             invoices = self.get_invoices()
             customers = self.get_customers()
@@ -390,8 +392,12 @@ class GoogleSheetsAPI:
             customer_data = customers['data']
             product_data = products['data']
             
+            print(f"🔍 Total invoices before filter: {len(invoice_data)}")
+            
             # Lọc theo ngày nếu có
             invoice_data = self._filter_invoices_by_date(invoice_data, date_from, date_to)
+            
+            print(f"🔍 Total invoices after filter: {len(invoice_data)}")
             
             # Tính toán thống kê - sử dụng hàm parse an toàn
             total_revenue = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data)
@@ -414,6 +420,8 @@ class GoogleSheetsAPI:
             # Tính tổng chi tiêu khách hàng từ hóa đơn thực tế (không dùng field Tổng Chi Tiêu)
             total_customer_spent = total_revenue  # Tổng chi tiêu = tổng doanh thu
             avg_customer_spent = total_customer_spent / total_customers if total_customers > 0 else 0
+            
+            print(f"🔍 Final stats: revenue={total_revenue}, invoices={total_invoices}, customers={total_customers}")
             
             return {
                 'success': True,
