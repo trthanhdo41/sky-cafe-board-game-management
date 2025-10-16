@@ -329,8 +329,11 @@ class GoogleSheetsAPI:
                     'added_columns': []
                 }
             
-            # Add missing columns to the end
+            # Resize worksheet to accommodate new columns
             current_col_count = len(headers)
+            new_col_count = current_col_count + len(missing_columns)
+            worksheet.resize(rows=1000, cols=new_col_count)
+            print(f"✅ Đã mở rộng sheet thành {new_col_count} cột")
             
             # Add headers for new columns
             for i, col_name in enumerate(missing_columns):
@@ -352,7 +355,7 @@ class GoogleSheetsAPI:
                 'success': True, 
                 'message': f'Đã thêm {len(missing_columns)} cột mới vào sheet KHACH_HANG',
                 'added_columns': missing_columns,
-                'total_columns': len(headers) + len(missing_columns)
+                'total_columns': new_col_count
             }
             
         except Exception as e:
