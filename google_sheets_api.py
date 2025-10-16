@@ -200,22 +200,22 @@ class GoogleSheetsAPI:
             row_data = [
                 customer_code,
                 name,
-                customer_data.get('Biệt Danh', ''),
+                customer_data.get('Biệt Danh', ''),  # Text field
                 phone,
                 phone[-4:] if len(phone) >= 4 else phone,
                 customer_data.get('Ngày Đăng Ký', ''),
                 customer_data.get('Tổng Chi Tiêu', 0),
-                customer_data.get('Lượt Chơi', 0),
-                customer_data.get('Nước', 0),
-                customer_data.get('Vé Freeroll', 0),
-                customer_data.get('Hyper', 0),
-                customer_data.get('Turbo', 0),
-                customer_data.get('Happy', 0),
-                customer_data.get('Deep Stack', 0),
-                customer_data.get('Highroller', 0),
-                customer_data.get('Tổng Điểm', 0),
-                customer_data.get('Đổi', 0),
-                customer_data.get('Còn Lại', 0)
+                customer_data.get('Lượt Chơi', 0),  # Number field
+                customer_data.get('Nước', 0),  # Number field
+                customer_data.get('Vé Freeroll', 0),  # Number field
+                customer_data.get('Hyper', 0),  # Number field
+                customer_data.get('Turbo', 0),  # Number field
+                customer_data.get('Happy', 0),  # Number field
+                customer_data.get('Deep Stack', 0),  # Number field
+                customer_data.get('Highroller', 0),  # Number field
+                customer_data.get('Tổng Điểm', 0),  # Currency field
+                customer_data.get('Đổi', 0),  # Currency field
+                customer_data.get('Còn Lại', 0)  # Currency field
             ]
             
             worksheet.append_row(row_data)
@@ -300,26 +300,26 @@ class GoogleSheetsAPI:
             headers = worksheet.row_values(1)
             print(f"📋 Headers hiện tại: {headers}")
             
-            # Define new columns to add
+            # Define new columns to add with proper data types
             new_columns = [
-                'Biệt Danh',
-                'Lượt Chơi', 
-                'Nước',
-                'Vé Freeroll',
-                'Hyper',
-                'Turbo',
-                'Happy',
-                'Deep Stack',
-                'Highroller',
-                'Tổng Điểm',
-                'Đổi',
-                'Còn Lại'
+                {'name': 'Biệt Danh', 'type': 'text', 'default': ''},
+                {'name': 'Lượt Chơi', 'type': 'number', 'default': 0},
+                {'name': 'Nước', 'type': 'number', 'default': 0},
+                {'name': 'Vé Freeroll', 'type': 'number', 'default': 0},
+                {'name': 'Hyper', 'type': 'number', 'default': 0},
+                {'name': 'Turbo', 'type': 'number', 'default': 0},
+                {'name': 'Happy', 'type': 'number', 'default': 0},
+                {'name': 'Deep Stack', 'type': 'number', 'default': 0},
+                {'name': 'Highroller', 'type': 'number', 'default': 0},
+                {'name': 'Tổng Điểm', 'type': 'currency', 'default': 0},
+                {'name': 'Đổi', 'type': 'currency', 'default': 0},
+                {'name': 'Còn Lại', 'type': 'currency', 'default': 0}
             ]
             
             # Check which columns are missing
             missing_columns = []
             for col in new_columns:
-                if col not in headers:
+                if col['name'] not in headers:
                     missing_columns.append(col)
             
             if not missing_columns:
@@ -335,28 +335,34 @@ class GoogleSheetsAPI:
             if missing_columns:
                 # Prepare batch update requests for headers
                 header_requests = []
-                for i, col_name in enumerate(missing_columns):
+                for i, col in enumerate(missing_columns):
                     col_letter = chr(ord('A') + current_col_count + i)
                     header_requests.append({
                         'range': f'KHACH_HANG!{col_letter}1',
-                        'values': [[col_name]]
+                        'values': [[col['name']]]
                     })
                 
                 # Execute header updates
                 worksheet.batch_update(header_requests)
                 print(f"✅ Đã thêm {len(missing_columns)} headers mới")
                 
-                # Fill default values (0) for existing customers
+                # Fill default values for existing customers
                 num_rows = worksheet.row_count
                 if num_rows > 1:  # Has data rows
                     fill_requests = []
-                    for i, col_name in enumerate(missing_columns):
+                    for i, col in enumerate(missing_columns):
                         col_letter = chr(ord('A') + current_col_count + i)
-                        # Fill with 0 for all existing customers
                         range_to_fill = f'KHACH_HANG!{col_letter}2:{col_letter}{num_rows}'
+                        
+                        # Use appropriate default value based on type
+                        if col['type'] == 'text':
+                            default_value = col['default']  # Empty string
+                        else:
+                            default_value = col['default']  # 0 for numbers/currency
+                        
                         fill_requests.append({
                             'range': range_to_fill,
-                            'values': [[0]] * (num_rows - 1)
+                            'values': [[default_value]] * (num_rows - 1)
                         })
                     
                     if fill_requests:
@@ -366,8 +372,8 @@ class GoogleSheetsAPI:
             return {
                 'success': True, 
                 'message': f'Đã thêm {len(missing_columns)} cột mới vào sheet KHACH_HANG',
-                'added_columns': missing_columns,
-                'total_columns': new_col_count
+                'added_columns': [col['name'] for col in missing_columns],
+                'total_columns': current_col_count + len(missing_columns)
             }
             
         except Exception as e:
