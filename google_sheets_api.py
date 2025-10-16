@@ -240,7 +240,7 @@ class GoogleSheetsAPI:
                 f"'{phone}" if phone else '',  # Số Điện Thoại (with leading quote)
                 phone[-4:] if len(phone) >= 4 else phone,  # 4 Số Cuối
                 registration_date,  # Ngày Đăng Ký (dd/mm/yyyy format)
-                '0 ₫',  # Tổng Chi Tiêu (with currency symbol)
+                0,  # Tổng Chi Tiêu (let Google Sheets format it)
                 '',  # Biệt Danh (empty)
                 '',  # Lượt Chơi (empty)
                 '',  # Nước (empty)
