@@ -3048,6 +3048,9 @@
       
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      
       const weekStart = new Date(today);
       weekStart.setDate(today.getDate() - today.getDay());
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -3059,7 +3062,18 @@
         // Date filter
         let dateMatch = true;
         if (dateFilter === 'today') {
-          dateMatch = invoiceDate >= today;
+          // Debug: Log dates for troubleshooting
+          console.log('Today filter:', {
+            invoiceDate: invoiceData.date,
+            parsedInvoiceDate: invoiceDate,
+            today: today,
+            tomorrow: tomorrow,
+            invoiceDateString: invoiceDate.toDateString(),
+            todayString: today.toDateString()
+          });
+          
+          // Fix: Check if invoice date is within today (00:00 to 23:59)
+          dateMatch = invoiceDate >= today && invoiceDate < tomorrow;
         } else if (dateFilter === 'week') {
           dateMatch = invoiceDate >= weekStart;
         } else if (dateFilter === 'month') {
