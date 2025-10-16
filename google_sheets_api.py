@@ -215,14 +215,19 @@ class GoogleSheetsAPI:
             # Generate customer code
             name = customer_data.get('Tên Khách Hàng', '').strip()
             phone = customer_data.get('Số Điện Thoại', '').strip()
-            customer_code = f"{name[:4]}{phone[-4:]}" if name and phone else f"KH{len(worksheet.get_all_records()) + 1:04d}"
+            # Generate customer code without spaces
+            name_clean = name.replace(' ', '') if name else ''
+            customer_code = f"{name_clean[:4]}{phone[-4:]}" if name_clean and phone else f"KH{len(worksheet.get_all_records()) + 1:04d}"
             
             # Format date to dd/mm/yyyy like existing customers
             registration_date = customer_data.get('Ngày Đăng Ký', '')
-            if registration_date:
+            if not registration_date:
+                # If no date provided, use current date
+                from datetime import datetime
+                registration_date = datetime.now().strftime('%d/%m/%Y')
+            else:
                 try:
                     # Convert from yyyy-mm-dd to dd/mm/yyyy
-                    from datetime import datetime
                     if '-' in registration_date:
                         date_obj = datetime.strptime(registration_date, '%Y-%m-%d')
                         registration_date = date_obj.strftime('%d/%m/%Y')
