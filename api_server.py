@@ -33,6 +33,16 @@ def health_check():
         'sheets_connected': sheets_api is not None
     })
 
+@app.route('/api/debug', methods=['GET'])
+def debug_api():
+    return jsonify({
+        'success': True, 
+        'message': 'Debug API - Fixed date filtering v2.0',
+        'timestamp': '2025-10-16T10:00:00Z',
+        'code_version': '979a9d5',
+        'file': 'api_server.py'
+    })
+
 @app.route('/api/test', methods=['GET'])
 def test_connection():
     init_sheets_api()
