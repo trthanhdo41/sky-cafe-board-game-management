@@ -264,6 +264,7 @@ class GoogleSheetsAPI:
     def update_customer(self, customer_code, customer_data):
         """Cập nhật khách hàng"""
         try:
+            print(f"🔍 update_customer called with code: {customer_code}, data: {customer_data}")
             worksheet = self.sheet.worksheet('KHACH_HANG')
             all_values = worksheet.get_all_values()
             
@@ -271,6 +272,7 @@ class GoogleSheetsAPI:
                 return {'success': False, 'message': 'Không có dữ liệu khách hàng'}
             
             headers = all_values[0]
+            print(f"📊 Headers: {headers}")
             
             # Find customer row
             row_index = None
@@ -279,6 +281,7 @@ class GoogleSheetsAPI:
                     row_index = i
                     break
             
+            print(f"📍 Found customer at row: {row_index}")
             if not row_index:
                 return {'success': False, 'message': 'Không tìm thấy khách hàng'}
             
@@ -306,7 +309,9 @@ class GoogleSheetsAPI:
                 customer_data.get('Còn Lại', '')  # Còn Lại
             ]
             
-            worksheet.update(f'A{row_index}:R{row_index}', [row_data])
+            # Update the row with new data
+            end_col = chr(ord('A') + len(row_data) - 1)  # Calculate end column
+            worksheet.update(f'A{row_index}:{end_col}{row_index}', [row_data])
             return {'success': True, 'message': 'Cập nhật khách hàng thành công'}
             
         except Exception as e:
