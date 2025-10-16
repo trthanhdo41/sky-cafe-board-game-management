@@ -329,30 +329,39 @@ class GoogleSheetsAPI:
                     'added_columns': []
                 }
             
-            # Insert columns using Google Sheets API
+            # Use batch update to add columns (safer approach)
             current_col_count = len(headers)
             
-            # Insert columns after the last existing column
             if missing_columns:
-                # Insert columns starting from position 7 (after column F)
-                worksheet.insert_cols(len(missing_columns), col=7)
-                print(f"✅ Đã insert {len(missing_columns)} cột mới")
-                
-                # Add headers for new columns
+                # Prepare batch update requests for headers
+                header_requests = []
                 for i, col_name in enumerate(missing_columns):
                     col_letter = chr(ord('A') + current_col_count + i)
-                    worksheet.update(f'{col_letter}1', col_name)
-                    print(f"✅ Đã thêm header cột {col_letter}: {col_name}")
+                    header_requests.append({
+                        'range': f'KHACH_HANG!{col_letter}1',
+                        'values': [[col_name]]
+                    })
+                
+                # Execute header updates
+                worksheet.batch_update(header_requests)
+                print(f"✅ Đã thêm {len(missing_columns)} headers mới")
                 
                 # Fill default values (0) for existing customers
                 num_rows = worksheet.row_count
                 if num_rows > 1:  # Has data rows
+                    fill_requests = []
                     for i, col_name in enumerate(missing_columns):
                         col_letter = chr(ord('A') + current_col_count + i)
                         # Fill with 0 for all existing customers
-                        range_to_fill = f'{col_letter}2:{col_letter}{num_rows}'
-                        worksheet.update(range_to_fill, [[0]] * (num_rows - 1))
-                        print(f"✅ Đã điền giá trị mặc định cho cột {col_name}")
+                        range_to_fill = f'KHACH_HANG!{col_letter}2:{col_letter}{num_rows}'
+                        fill_requests.append({
+                            'range': range_to_fill,
+                            'values': [[0]] * (num_rows - 1)
+                        })
+                    
+                    if fill_requests:
+                        worksheet.batch_update(fill_requests)
+                        print(f"✅ Đã điền giá trị mặc định cho {len(missing_columns)} cột")
             
             return {
                 'success': True, 
