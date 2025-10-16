@@ -291,6 +291,73 @@ class GoogleSheetsAPI:
         except Exception as e:
             return {'success': False, 'message': str(e)}
     
+    def update_sheet_structure(self):
+        """Cập nhật cấu trúc sheet KHACH_HANG với các cột mới"""
+        try:
+            worksheet = self.sheet.worksheet('KHACH_HANG')
+            
+            # Get current headers
+            headers = worksheet.row_values(1)
+            print(f"📋 Headers hiện tại: {headers}")
+            
+            # Define new columns to add
+            new_columns = [
+                'Biệt Danh',
+                'Lượt Chơi', 
+                'Nước',
+                'Vé Freeroll',
+                'Hyper',
+                'Turbo',
+                'Happy',
+                'Deep Stack',
+                'Highroller',
+                'Tổng Điểm',
+                'Đổi',
+                'Còn Lại'
+            ]
+            
+            # Check which columns are missing
+            missing_columns = []
+            for col in new_columns:
+                if col not in headers:
+                    missing_columns.append(col)
+            
+            if not missing_columns:
+                return {
+                    'success': True, 
+                    'message': 'Tất cả cột đã có sẵn!',
+                    'added_columns': []
+                }
+            
+            # Add missing columns to the end
+            current_col_count = len(headers)
+            
+            # Add headers for new columns
+            for i, col_name in enumerate(missing_columns):
+                col_letter = chr(ord('A') + current_col_count + i)
+                worksheet.update(f'{col_letter}1', col_name)
+                print(f"✅ Đã thêm cột {col_letter}: {col_name}")
+            
+            # Fill default values (0) for existing customers
+            num_rows = worksheet.row_count
+            if num_rows > 1:  # Has data rows
+                for i, col_name in enumerate(missing_columns):
+                    col_letter = chr(ord('A') + current_col_count + i)
+                    # Fill with 0 for all existing customers
+                    range_to_fill = f'{col_letter}2:{col_letter}{num_rows}'
+                    worksheet.update(range_to_fill, [[0]] * (num_rows - 1))
+                    print(f"✅ Đã điền giá trị mặc định cho cột {col_name}")
+            
+            return {
+                'success': True, 
+                'message': f'Đã thêm {len(missing_columns)} cột mới vào sheet KHACH_HANG',
+                'added_columns': missing_columns,
+                'total_columns': len(headers) + len(missing_columns)
+            }
+            
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+    
     def get_products(self):
         """Lấy danh sách sản phẩm"""
         try:

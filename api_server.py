@@ -82,6 +82,18 @@ def delete_customer(customer_code):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+@app.route('/api/customers/update-sheet-structure', methods=['POST'])
+def update_sheet_structure():
+    init_sheets_api()
+    if not sheets_api:
+        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+    
+    try:
+        result = sheets_api.update_sheet_structure()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/test', methods=['GET'])
 def test_connection():
     init_sheets_api()
