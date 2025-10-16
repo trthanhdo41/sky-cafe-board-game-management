@@ -1866,62 +1866,10 @@
       }
     }
     
-    async function openAddCustomerModal() {
+    function openAddCustomerModal() {
       // Use modal instead of prompt
       showAddCustomerModal();
       return;
-      
-      // Check if phone number already exists
-      const cleanPhone = customerPhone.replace(/[\s\-\(\)]/g, '');
-      const existingCustomer = state.customers.find(c => {
-        const customerPhoneStr = c.phone ? String(c.phone).replace(/'/g, '') : '';
-        const cleanCustomerPhone = customerPhoneStr.replace(/[\s\-\(\)]/g, '');
-        return cleanCustomerPhone === cleanPhone;
-      });
-      
-      if (existingCustomer) {
-        showToast(`Số điện thoại ${customerPhone} đã tồn tại cho khách hàng: ${existingCustomer.name}`, 'warning');
-        return;
-      }
-      
-      // Get last 4 digits from phone number (remove all non-digits first)
-      const phoneDigits = customerPhone.replace(/\D/g, '');
-      const last4Digits = phoneDigits.slice(-4);
-      const customerId = customerName.split(' ').pop() + last4Digits;
-      
-      const newCustomer = {
-        'Tên Khách Hàng': customerName,
-        'Số Điện Thoại': customerPhone,
-        '4 Số Cuối': last4Digits,
-        'Ngày Đăng Ký': new Date().toISOString().split('T')[0],
-        'Tổng Chi Tiêu': 0,
-        'Biệt Danh': '',
-        'Lượt Chơi': 0,
-        'Nước': 0,
-        'Vé Freeroll': 0,
-        'Hyper': 0,
-        'Turbo': 0,
-        'Happy': 0,
-        'Deep Stack': 0,
-        'Highroller': 0,
-        'Tổng Điểm': 0,
-        'Đổi': 0,
-        'Còn Lại': 0
-      };
-      
-      // Add to Google Sheets
-      if (CONFIG.API_BASE_URL) {
-        const result = await callGoogleSheetsAPI('addCustomer', newCustomer);
-        if (result && result.success) {
-          // Reload data from Google Sheets
-          await loadDataFromSheet();
-      showToast('Đã thêm khách hàng: ' + customerName);
-        } else {
-          showToast('Lỗi khi thêm khách hàng: ' + (result?.message || 'Unknown error'), 'error');
-        }
-      } else {
-        showToast('API Server chưa được kết nối', 'error');
-      }
     }
     
     // ============================================================================
@@ -2010,44 +1958,10 @@
       }
     }
     
-    async function openAddProductMenuModal() {
+    function openAddProductMenuModal() {
       // Use modal instead of prompt
       showAddProductModal();
       return;
-      
-      let productPrice = 25000; // Mặc định cho đồ uống
-      
-      // Nếu không phải đồ uống thì phải nhập giá
-      if (productCategory !== 'Đồ uống') {
-      // Use modal instead of prompt
-      showAddProductModal();
-      return;
-          showToast('Giá không hợp lệ!');
-          return;
-        }
-        productPrice = parseInt(priceInput);
-      }
-      
-      const newProduct = {
-        code: 'SP' + String(state.products.length + 1).padStart(3, '0'),
-        name: productName,
-        price: productPrice,
-        category: productCategory
-      };
-      
-      // Add to Google Sheets
-      if (CONFIG.API_BASE_URL) {
-        const result = await callGoogleSheetsAPI('addProduct', { product: newProduct });
-        if (result && result.success) {
-          // Reload data from Google Sheets
-          await loadDataFromSheet();
-      showToast('Đã thêm sản phẩm: ' + productName + ' (' + formatMoney(productPrice) + ')');
-        } else {
-          showToast('Lỗi khi thêm sản phẩm: ' + (result?.message || 'Unknown error'), 'error');
-        }
-      } else {
-        showToast('API Server chưa được kết nối', 'error');
-      }
     }
 
     // ============================================================================
