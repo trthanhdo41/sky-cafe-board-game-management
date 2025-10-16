@@ -1790,8 +1790,13 @@
     let editingCustomerIndex = null;
     
     function editCustomer(customerCode) {
+      console.log('🔍 editCustomer called with:', customerCode);
+      console.log('📊 state.customers:', state.customers);
+      
       // Find customer by code
       const customer = state.customers.find(c => c['Mã KH'] === customerCode);
+      console.log('👤 Found customer:', customer);
+      
       if (!customer) {
         showToast('Không tìm thấy khách hàng', 'error');
         return;
@@ -3125,6 +3130,8 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
         const result = await response.json();
         
         if (result.success) {
+          // Update state.customers with the data from API
+          state.customers = result.data;
           renderCustomersTable(result.data);
         } else {
           showToast(`Lỗi: ${result.message}`, 'error');
