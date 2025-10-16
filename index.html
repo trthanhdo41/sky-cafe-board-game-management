@@ -3164,7 +3164,7 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
       };
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/customers`, {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/customers`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3189,7 +3189,7 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
 
     async function loadCustomers() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/customers`);
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/customers`);
         const result = await response.json();
         
         if (result.success) {
