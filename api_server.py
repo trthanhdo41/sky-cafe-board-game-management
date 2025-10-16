@@ -44,6 +44,44 @@ def debug_api():
         'file': 'api_server.py'
     })
 
+@app.route('/api/customers', methods=['POST'])
+def create_customer():
+    init_sheets_api()
+    if not sheets_api:
+        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+    
+    try:
+        data = request.get_json()
+        result = sheets_api.create_customer(data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/customers/<customer_code>', methods=['PUT'])
+def update_customer(customer_code):
+    init_sheets_api()
+    if not sheets_api:
+        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+    
+    try:
+        data = request.get_json()
+        result = sheets_api.update_customer(customer_code, data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/customers/<customer_code>', methods=['DELETE'])
+def delete_customer(customer_code):
+    init_sheets_api()
+    if not sheets_api:
+        return jsonify({'success': False, 'message': 'Google Sheets not connected'})
+    
+    try:
+        result = sheets_api.delete_customer(customer_code)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/test', methods=['GET'])
 def test_connection():
     init_sheets_api()

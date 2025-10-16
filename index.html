@@ -650,7 +650,7 @@
         <div class="card rounded-xl p-6">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold">Danh Sách Khách Hàng</h2>
-            <button id="addCustomerBtn" class="btn-primary px-4 py-2 rounded-lg font-medium">+ Thêm Khách Hàng</button>
+            <button id="addCustomerBtn" class="btn-primary px-4 py-2 rounded-lg font-medium" onclick="showAddCustomerModal()">+ Thêm Khách Hàng</button>
           </div>
           
           <div class="overflow-x-auto">
@@ -659,15 +659,25 @@
                 <tr class="border-b" style="border-color: var(--border-color); background: var(--bg-tertiary);">
                   <th class="text-left py-3 px-2" style="color: var(--text-primary);">Mã KH</th>
                   <th class="text-left py-3 px-2" style="color: var(--text-primary);">Tên</th>
+                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">Biệt Danh</th>
                   <th class="text-left py-3 px-2" style="color: var(--text-primary);">SĐT</th>
-                  <th class="text-left py-3 px-2" style="color: var(--text-primary);">4 Số Cuối</th>
-                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Tổng Chi Tiêu</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Lượt Chơi</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Nước</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Vé Freeroll</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Hyper</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Turbo</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Happy</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Deep Stack</th>
+                  <th class="text-center py-3 px-2" style="color: var(--text-primary);">Highroller</th>
+                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Tổng Điểm</th>
+                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Đổi</th>
+                  <th class="text-right py-3 px-2" style="color: var(--text-primary);">Còn Lại</th>
                   <th class="text-center py-3 px-2" style="color: var(--text-primary);">Thao Tác</th>
                 </tr>
               </thead>
               <tbody id="customersList">
                 <tr>
-                  <td colspan="6" class="text-center py-8" style="color: var(--text-tertiary)">
+                  <td colspan="16" class="text-center py-8" style="color: var(--text-tertiary)">
                     Chưa có khách hàng nào
                   </td>
                 </tr>
@@ -861,6 +871,99 @@
   <div id="loadingIndicator" class="hidden fixed top-4 right-4 card rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg z-50">
     <div class="spinner"></div>
     <span class="text-sm font-medium">Đang xử lý...</span>
+  </div>
+
+  <!-- Add Customer Modal -->
+  <div id="addCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold">Thêm Khách Hàng Mới</h3>
+        <button onclick="hideAddCustomerModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Basic Info -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Tên Khách Hàng *</label>
+          <input type="text" id="addCustomerName" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập tên..." required>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Biệt Danh</label>
+          <input type="text" id="addCustomerNickname" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập biệt danh...">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Số Điện Thoại *</label>
+          <input type="tel" id="addCustomerPhone" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập SĐT..." required>
+        </div>
+        
+        <!-- Game Stats -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Lượt Chơi</label>
+          <input type="number" id="addCustomerPlayCount" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Nước</label>
+          <input type="number" id="addCustomerWater" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Vé Freeroll</label>
+          <input type="number" id="addCustomerFreeroll" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <!-- Tournament Types -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Hyper</label>
+          <input type="number" id="addCustomerHyper" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Turbo</label>
+          <input type="number" id="addCustomerTurbo" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Happy</label>
+          <input type="number" id="addCustomerHappy" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Deep Stack</label>
+          <input type="number" id="addCustomerDeepStack" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Highroller</label>
+          <input type="number" id="addCustomerHighroller" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <!-- Points -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Tổng Điểm</label>
+          <input type="number" id="addCustomerTotalPoints" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Đổi</label>
+          <input type="number" id="addCustomerExchange" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Còn Lại</label>
+          <input type="number" id="addCustomerRemaining" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+        </div>
+      </div>
+      
+      <div class="flex gap-3 mt-6">
+        <button onclick="createCustomer()" class="btn-primary flex-1 py-2 rounded-lg font-semibold">Tạo Khách Hàng</button>
+        <button onclick="hideAddCustomerModal()" class="flex-1 py-2 rounded-lg font-semibold bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">Hủy</button>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Notification -->
@@ -2964,6 +3067,130 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
       setTimeout(() => {
         toast.classList.add('hidden');
       }, 3000);
+    }
+
+    // Customer Management Functions
+    function showAddCustomerModal() {
+      document.getElementById('addCustomerModal').classList.remove('hidden');
+    }
+
+    function hideAddCustomerModal() {
+      document.getElementById('addCustomerModal').classList.add('hidden');
+      clearAddCustomerForm();
+    }
+
+    function clearAddCustomerForm() {
+      document.getElementById('addCustomerName').value = '';
+      document.getElementById('addCustomerNickname').value = '';
+      document.getElementById('addCustomerPhone').value = '';
+      document.getElementById('addCustomerPlayCount').value = '0';
+      document.getElementById('addCustomerWater').value = '0';
+      document.getElementById('addCustomerFreeroll').value = '0';
+      document.getElementById('addCustomerHyper').value = '0';
+      document.getElementById('addCustomerTurbo').value = '0';
+      document.getElementById('addCustomerHappy').value = '0';
+      document.getElementById('addCustomerDeepStack').value = '0';
+      document.getElementById('addCustomerHighroller').value = '0';
+      document.getElementById('addCustomerTotalPoints').value = '0';
+      document.getElementById('addCustomerExchange').value = '0';
+      document.getElementById('addCustomerRemaining').value = '0';
+    }
+
+    async function createCustomer() {
+      const customerData = {
+        'Tên Khách Hàng': document.getElementById('addCustomerName').value,
+        'Biệt Danh': document.getElementById('addCustomerNickname').value,
+        'Số Điện Thoại': document.getElementById('addCustomerPhone').value,
+        'Lượt Chơi': parseInt(document.getElementById('addCustomerPlayCount').value) || 0,
+        'Nước': parseInt(document.getElementById('addCustomerWater').value) || 0,
+        'Vé Freeroll': parseInt(document.getElementById('addCustomerFreeroll').value) || 0,
+        'Hyper': parseInt(document.getElementById('addCustomerHyper').value) || 0,
+        'Turbo': parseInt(document.getElementById('addCustomerTurbo').value) || 0,
+        'Happy': parseInt(document.getElementById('addCustomerHappy').value) || 0,
+        'Deep Stack': parseInt(document.getElementById('addCustomerDeepStack').value) || 0,
+        'Highroller': parseInt(document.getElementById('addCustomerHighroller').value) || 0,
+        'Tổng Điểm': parseInt(document.getElementById('addCustomerTotalPoints').value) || 0,
+        'Đổi': parseInt(document.getElementById('addCustomerExchange').value) || 0,
+        'Còn Lại': parseInt(document.getElementById('addCustomerRemaining').value) || 0
+      };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/customers`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          showToast('Tạo khách hàng thành công!', 'success');
+          hideAddCustomerModal();
+          loadCustomers();
+        } else {
+          showToast(`Lỗi: ${result.message}`, 'error');
+        }
+      } catch (error) {
+        showToast('Lỗi khi tạo khách hàng', 'error');
+        console.error('Error creating customer:', error);
+      }
+    }
+
+    async function loadCustomers() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/customers`);
+        const result = await response.json();
+        
+        if (result.success) {
+          renderCustomersTable(result.data);
+        } else {
+          showToast(`Lỗi: ${result.message}`, 'error');
+        }
+      } catch (error) {
+        showToast('Lỗi khi tải danh sách khách hàng', 'error');
+        console.error('Error loading customers:', error);
+      }
+    }
+
+    function renderCustomersTable(customers) {
+      const tbody = document.getElementById('customersList');
+      
+      if (!customers || customers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="16" class="text-center py-8" style="color: var(--text-tertiary)">
+              Chưa có khách hàng nào
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = customers.map(customer => `
+        <tr class="border-b" style="border-color: var(--border-color);">
+          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Mã KH'] || ''}</td>
+          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Tên Khách Hàng'] || ''}</td>
+          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Biệt Danh'] || ''}</td>
+          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Số Điện Thoại'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Lượt Chơi'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Nước'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Vé Freeroll'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Hyper'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Turbo'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Happy'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Deep Stack'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Highroller'] || 0}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Tổng Điểm'] || 0}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Đổi'] || 0}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Còn Lại'] || 0}</td>
+          <td class="py-3 px-2 text-center">
+            <button onclick="editCustomer('${customer['Mã KH']}')" class="btn-secondary px-2 py-1 text-xs rounded">Sửa</button>
+            <button onclick="deleteCustomer('${customer['Mã KH']}')" class="btn-danger px-2 py-1 text-xs rounded ml-1">Xóa</button>
+          </td>
+        </tr>
+      `).join('');
     }
   </script>
 </body>

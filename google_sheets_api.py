@@ -148,9 +148,14 @@ class GoogleSheetsAPI:
             
             # Create KHACH_HANG sheet if not exists
             if 'KHACH_HANG' not in sheet_names:
-                worksheet = self.sheet.add_worksheet(title='KHACH_HANG', rows=1000, cols=10)
-                worksheet.append_row(['Mã KH', 'Tên Khách Hàng', 'Số Điện Thoại', '4 Số Cuối', 'Ngày Đăng Ký', 'Tổng Chi Tiêu'])
-                print("✅ Created KHACH_HANG sheet")
+                worksheet = self.sheet.add_worksheet(title='KHACH_HANG', rows=1000, cols=20)
+                headers = [
+                    'Mã KH', 'Tên Khách Hàng', 'Biệt Danh', 'Số Điện Thoại', '4 Số Cuối', 'Ngày Đăng Ký', 'Tổng Chi Tiêu',
+                    'Lượt Chơi', 'Nước', 'Vé Freeroll', 'Hyper', 'Turbo', 'Happy', 'Deep Stack', 'Highroller', 
+                    'Tổng Điểm', 'Đổi', 'Còn Lại'
+                ]
+                worksheet.append_row(headers)
+                print("✅ Created KHACH_HANG sheet with extended fields")
             
             # Create SAN_PHAM sheet if not exists
             if 'SAN_PHAM' not in sheet_names:
@@ -179,6 +184,110 @@ class GoogleSheetsAPI:
             worksheet = self.sheet.worksheet('KHACH_HANG')
             records = worksheet.get_all_records()
             return {'success': True, 'data': records}
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+    
+    def create_customer(self, customer_data):
+        """Tạo khách hàng mới"""
+        try:
+            worksheet = self.sheet.worksheet('KHACH_HANG')
+            
+            # Generate customer code
+            name = customer_data.get('Tên Khách Hàng', '').strip()
+            phone = customer_data.get('Số Điện Thoại', '').strip()
+            customer_code = f"{name[:4]}{phone[-4:]}" if name and phone else f"KH{len(worksheet.get_all_records()) + 1:04d}"
+            
+            row_data = [
+                customer_code,
+                name,
+                customer_data.get('Biệt Danh', ''),
+                phone,
+                phone[-4:] if len(phone) >= 4 else phone,
+                customer_data.get('Ngày Đăng Ký', ''),
+                customer_data.get('Tổng Chi Tiêu', 0),
+                customer_data.get('Lượt Chơi', 0),
+                customer_data.get('Nước', 0),
+                customer_data.get('Vé Freeroll', 0),
+                customer_data.get('Hyper', 0),
+                customer_data.get('Turbo', 0),
+                customer_data.get('Happy', 0),
+                customer_data.get('Deep Stack', 0),
+                customer_data.get('Highroller', 0),
+                customer_data.get('Tổng Điểm', 0),
+                customer_data.get('Đổi', 0),
+                customer_data.get('Còn Lại', 0)
+            ]
+            
+            worksheet.append_row(row_data)
+            return {'success': True, 'message': 'Tạo khách hàng thành công', 'customer_code': customer_code}
+            
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+    
+    def update_customer(self, customer_code, customer_data):
+        """Cập nhật khách hàng"""
+        try:
+            worksheet = self.sheet.worksheet('KHACH_HANG')
+            records = worksheet.get_all_records()
+            
+            # Find customer row
+            row_index = None
+            for i, record in enumerate(records):
+                if record.get('Mã KH') == customer_code:
+                    row_index = i + 2  # +2 because sheets are 1-indexed and we have headers
+                    break
+            
+            if not row_index:
+                return {'success': False, 'message': 'Không tìm thấy khách hàng'}
+            
+            # Update data
+            row_data = [
+                customer_code,
+                customer_data.get('Tên Khách Hàng', ''),
+                customer_data.get('Biệt Danh', ''),
+                customer_data.get('Số Điện Thoại', ''),
+                customer_data.get('4 Số Cuối', ''),
+                customer_data.get('Ngày Đăng Ký', ''),
+                customer_data.get('Tổng Chi Tiêu', 0),
+                customer_data.get('Lượt Chơi', 0),
+                customer_data.get('Nước', 0),
+                customer_data.get('Vé Freeroll', 0),
+                customer_data.get('Hyper', 0),
+                customer_data.get('Turbo', 0),
+                customer_data.get('Happy', 0),
+                customer_data.get('Deep Stack', 0),
+                customer_data.get('Highroller', 0),
+                customer_data.get('Tổng Điểm', 0),
+                customer_data.get('Đổi', 0),
+                customer_data.get('Còn Lại', 0)
+            ]
+            
+            worksheet.update(f'A{row_index}:R{row_index}', [row_data])
+            return {'success': True, 'message': 'Cập nhật khách hàng thành công'}
+            
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+    
+    def delete_customer(self, customer_code):
+        """Xóa khách hàng"""
+        try:
+            worksheet = self.sheet.worksheet('KHACH_HANG')
+            records = worksheet.get_all_records()
+            
+            # Find customer row
+            row_index = None
+            for i, record in enumerate(records):
+                if record.get('Mã KH') == customer_code:
+                    row_index = i + 2  # +2 because sheets are 1-indexed and we have headers
+                    break
+            
+            if not row_index:
+                return {'success': False, 'message': 'Không tìm thấy khách hàng'}
+            
+            # Delete row
+            worksheet.delete_rows(row_index)
+            return {'success': True, 'message': 'Xóa khách hàng thành công'}
+            
         except Exception as e:
             return {'success': False, 'message': str(e)}
     
