@@ -353,13 +353,13 @@ class GoogleSheetsAPI:
             total_revenue = sum(self._safe_parse_amount(inv.get('Tổng Thanh Toán', 0)) for inv in invoice_data)
             total_invoices = len(invoice_data)
             
-            # Đếm khách hàng thực tế có hóa đơn trong khoảng thời gian
-            customer_codes_in_period = set()
+            # Đếm khách hàng thực tế có hóa đơn trong khoảng thời gian (theo tên, không theo mã)
+            customer_names_in_period = set()
             for inv in invoice_data:
-                customer_code = inv.get('Mã KH', '')
-                if customer_code:
-                    customer_codes_in_period.add(customer_code)
-            total_customers = len(customer_codes_in_period)
+                customer_name = inv.get('Tên Khách', '').strip()
+                if customer_name:
+                    customer_names_in_period.add(customer_name)
+            total_customers = len(customer_names_in_period)
             
             total_products = len(product_data)
             
