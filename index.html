@@ -1837,27 +1837,39 @@
       }
     }
     
-    function deleteCustomer(index) {
+    async function deleteCustomer(customerCode) {
       if (confirm('Xác nhận xóa khách hàng này?')) {
-        const customer = state.customers[index];
-        
-        // Delete from Google Sheets if connected
-        if (CONFIG.API_BASE_URL) {
-          callGoogleSheetsAPI('deleteCustomer', { customerId: customer.code });
+        try {
+          // Delete from Google Sheets if connected
+          if (CONFIG.API_BASE_URL) {
+            const response = await fetch(`${CONFIG.API_BASE_URL}/customers/${customerCode}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+              showToast('Đã xóa khách hàng thành công', 'success');
+              loadCustomers(); // Reload the list
+            } else {
+              showToast(`Lỗi: ${result.message}`, 'error');
+            }
+          } else {
+            showToast('Không thể kết nối đến API server', 'error');
+          }
+        } catch (error) {
+          showToast('Lỗi khi xóa khách hàng', 'error');
+          console.error('Error deleting customer:', error);
         }
-        
-        state.customers.splice(index, 1);
-        loadCustomers();
-        showToast('Đã xóa khách hàng: ' + customer.name);
       }
     }
     
     async function openAddCustomerModal() {
-      const customerName = prompt('Nhập tên khách hàng:');
-      if (!customerName) return;
-      
-      const customerPhone = prompt('Nhập số điện thoại:');
-      if (!customerPhone) return;
+      // Use modal instead of prompt
+      showAddCustomerModal();
+      return;
       
       // Check if phone number already exists
       const cleanPhone = customerPhone.replace(/[\s\-\(\)]/g, '');
@@ -1999,17 +2011,17 @@
     }
     
     async function openAddProductMenuModal() {
-      const productName = prompt('Nhập tên sản phẩm:');
-      if (!productName) return;
-      
-      const productCategory = prompt('Nhập danh mục (Đồ uống/Đồ ăn/Dịch vụ):', 'Đồ uống') || 'Đồ uống';
+      // Use modal instead of prompt
+      showAddProductModal();
+      return;
       
       let productPrice = 25000; // Mặc định cho đồ uống
       
       // Nếu không phải đồ uống thì phải nhập giá
       if (productCategory !== 'Đồ uống') {
-        const priceInput = prompt('Nhập giá sản phẩm:');
-        if (!priceInput || isNaN(priceInput)) {
+      // Use modal instead of prompt
+      showAddProductModal();
+      return;
           showToast('Giá không hợp lệ!');
           return;
         }
@@ -3222,7 +3234,7 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Mã KH'] || ''}</td>
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Tên Khách Hàng'] || ''}</td>
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Biệt Danh'] || ''}</td>
-          <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Số Điện Thoại'] || ''}</td>
+          <td class="py-3 px-2" style="color: var(--text-primary);">${(customer['Số Điện Thoại'] || '').replace(/'/g, '')}</td>
           <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Lượt Chơi'] || ''}</td>
           <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Nước'] || ''}</td>
           <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Vé Freeroll'] || ''}</td>
