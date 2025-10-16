@@ -182,8 +182,28 @@ class GoogleSheetsAPI:
         """Lấy danh sách khách hàng"""
         try:
             worksheet = self.sheet.worksheet('KHACH_HANG')
-            records = worksheet.get_all_records()
-            return {'success': True, 'data': records}
+            # Lấy raw data để tránh format currency
+            all_values = worksheet.get_all_values()
+            
+            if len(all_values) <= 1:  # Chỉ có header hoặc không có data
+                return {'success': True, 'data': []}
+            
+            headers = all_values[0]
+            customers = []
+            
+            for row in all_values[1:]:
+                if not row[0]:  # Skip empty rows
+                    continue
+                    
+                customer = {}
+                for i, header in enumerate(headers):
+                    value = row[i] if i < len(row) else ''
+                    # Giữ nguyên raw value, không parse thành số
+                    customer[header] = value
+                
+                customers.append(customer)
+            
+            return {'success': True, 'data': customers}
         except Exception as e:
             return {'success': False, 'message': str(e)}
     

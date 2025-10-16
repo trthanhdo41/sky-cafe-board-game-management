@@ -903,59 +903,59 @@
         <!-- Game Stats -->
         <div>
           <label class="block text-sm font-medium mb-2">Lượt Chơi</label>
-          <input type="number" id="addCustomerPlayCount" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerPlayCount" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số lượt chơi...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Nước</label>
-          <input type="number" id="addCustomerWater" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerWater" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số nước...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Vé Freeroll</label>
-          <input type="number" id="addCustomerFreeroll" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerFreeroll" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số vé freeroll...">
         </div>
         
         <!-- Tournament Types -->
         <div>
           <label class="block text-sm font-medium mb-2">Hyper</label>
-          <input type="number" id="addCustomerHyper" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerHyper" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số hyper...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Turbo</label>
-          <input type="number" id="addCustomerTurbo" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerTurbo" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số turbo...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Happy</label>
-          <input type="number" id="addCustomerHappy" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerHappy" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số happy...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Deep Stack</label>
-          <input type="number" id="addCustomerDeepStack" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerDeepStack" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số deep stack...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Highroller</label>
-          <input type="number" id="addCustomerHighroller" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerHighroller" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số highroller...">
         </div>
         
         <!-- Points -->
         <div>
           <label class="block text-sm font-medium mb-2">Tổng Điểm</label>
-          <input type="number" id="addCustomerTotalPoints" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerTotalPoints" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập tổng điểm...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Đổi</label>
-          <input type="number" id="addCustomerExchange" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerExchange" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số đã đổi...">
         </div>
         
         <div>
           <label class="block text-sm font-medium mb-2">Còn Lại</label>
-          <input type="number" id="addCustomerRemaining" class="input-field w-full px-4 py-2 rounded-lg" value="0" min="0">
+          <input type="text" id="addCustomerRemaining" class="input-field w-full px-4 py-2 rounded-lg" placeholder="Nhập số còn lại...">
         </div>
       </div>
       
@@ -3132,17 +3132,17 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
       document.getElementById('addCustomerName').value = '';
       document.getElementById('addCustomerNickname').value = '';
       document.getElementById('addCustomerPhone').value = '';
-      document.getElementById('addCustomerPlayCount').value = '0';
-      document.getElementById('addCustomerWater').value = '0';
-      document.getElementById('addCustomerFreeroll').value = '0';
-      document.getElementById('addCustomerHyper').value = '0';
-      document.getElementById('addCustomerTurbo').value = '0';
-      document.getElementById('addCustomerHappy').value = '0';
-      document.getElementById('addCustomerDeepStack').value = '0';
-      document.getElementById('addCustomerHighroller').value = '0';
-      document.getElementById('addCustomerTotalPoints').value = '0';
-      document.getElementById('addCustomerExchange').value = '0';
-      document.getElementById('addCustomerRemaining').value = '0';
+      document.getElementById('addCustomerPlayCount').value = '';
+      document.getElementById('addCustomerWater').value = '';
+      document.getElementById('addCustomerFreeroll').value = '';
+      document.getElementById('addCustomerHyper').value = '';
+      document.getElementById('addCustomerTurbo').value = '';
+      document.getElementById('addCustomerHappy').value = '';
+      document.getElementById('addCustomerDeepStack').value = '';
+      document.getElementById('addCustomerHighroller').value = '';
+      document.getElementById('addCustomerTotalPoints').value = '';
+      document.getElementById('addCustomerExchange').value = '';
+      document.getElementById('addCustomerRemaining').value = '';
     }
 
     async function createCustomer() {
@@ -3150,17 +3150,17 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
         'Tên Khách Hàng': document.getElementById('addCustomerName').value,
         'Biệt Danh': document.getElementById('addCustomerNickname').value,
         'Số Điện Thoại': document.getElementById('addCustomerPhone').value,
-        'Lượt Chơi': parseInt(document.getElementById('addCustomerPlayCount').value) || 0,
-        'Nước': parseInt(document.getElementById('addCustomerWater').value) || 0,
-        'Vé Freeroll': parseInt(document.getElementById('addCustomerFreeroll').value) || 0,
-        'Hyper': parseInt(document.getElementById('addCustomerHyper').value) || 0,
-        'Turbo': parseInt(document.getElementById('addCustomerTurbo').value) || 0,
-        'Happy': parseInt(document.getElementById('addCustomerHappy').value) || 0,
-        'Deep Stack': parseInt(document.getElementById('addCustomerDeepStack').value) || 0,
-        'Highroller': parseInt(document.getElementById('addCustomerHighroller').value) || 0,
-        'Tổng Điểm': parseInt(document.getElementById('addCustomerTotalPoints').value) || 0,
-        'Đổi': parseInt(document.getElementById('addCustomerExchange').value) || 0,
-        'Còn Lại': parseInt(document.getElementById('addCustomerRemaining').value) || 0
+        'Lượt Chơi': document.getElementById('addCustomerPlayCount').value || '',
+        'Nước': document.getElementById('addCustomerWater').value || '',
+        'Vé Freeroll': document.getElementById('addCustomerFreeroll').value || '',
+        'Hyper': document.getElementById('addCustomerHyper').value || '',
+        'Turbo': document.getElementById('addCustomerTurbo').value || '',
+        'Happy': document.getElementById('addCustomerHappy').value || '',
+        'Deep Stack': document.getElementById('addCustomerDeepStack').value || '',
+        'Highroller': document.getElementById('addCustomerHighroller').value || '',
+        'Tổng Điểm': document.getElementById('addCustomerTotalPoints').value || '',
+        'Đổi': document.getElementById('addCustomerExchange').value || '',
+        'Còn Lại': document.getElementById('addCustomerRemaining').value || ''
       };
 
       try {
@@ -3223,17 +3223,17 @@ Hình thức: ${invoice.paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển kh
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Tên Khách Hàng'] || ''}</td>
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Biệt Danh'] || ''}</td>
           <td class="py-3 px-2" style="color: var(--text-primary);">${customer['Số Điện Thoại'] || ''}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Lượt Chơi'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Nước'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Vé Freeroll'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Hyper'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Turbo'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Happy'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Deep Stack'] || 0}</td>
-          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Highroller'] || 0}</td>
-          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Tổng Điểm'] || 0}</td>
-          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Đổi'] || 0}</td>
-          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Còn Lại'] || 0}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Lượt Chơi'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Nước'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Vé Freeroll'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Hyper'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Turbo'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Happy'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Deep Stack'] || ''}</td>
+          <td class="py-3 px-2 text-center" style="color: var(--text-primary);">${customer['Highroller'] || ''}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Tổng Điểm'] || ''}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Đổi'] || ''}</td>
+          <td class="py-3 px-2 text-right" style="color: var(--text-primary);">${customer['Còn Lại'] || ''}</td>
           <td class="py-3 px-2 text-center">
             <button onclick="editCustomer('${customer['Mã KH']}')" class="btn-secondary px-2 py-1 text-xs rounded">Sửa</button>
             <button onclick="deleteCustomer('${customer['Mã KH']}')" class="btn-danger px-2 py-1 text-xs rounded ml-1">Xóa</button>
